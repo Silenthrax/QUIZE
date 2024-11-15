@@ -10,7 +10,7 @@ const bot = new Telegraf(BOT_TOKEN);
 
 //-------- Loading all modules ----------- //
 
-const pluginsDir = path.join(__dirname, "/plugins/");
+const pluginsDir = path.join(__dirname, "./plugins/");
 fs.readdir(pluginsDir, (err, files) => {
   if (err) {
     console.error("Error reading plugins directory:", err);
