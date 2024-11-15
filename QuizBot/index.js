@@ -1,7 +1,7 @@
 const {Telegraf} = require('telegraf');
 const path = require('path');
 const fs = require("fs");
-const {BOT_TOKEN} = require('./config');
+const {BOT_TOKEN} = require('config');
 
 
 //-------- Create Bot Client ----------- //
