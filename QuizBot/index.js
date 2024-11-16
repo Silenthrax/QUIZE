@@ -1,16 +1,16 @@
 const {Telegraf} = require('telegraf');
 const path = require('path');
 const fs = require("fs");
-const {BOT_TOKEN} = require('config');
+const config = require('config');
 
 
 //-------- Create Bot Client ----------- //
-const bot = new Telegraf(BOT_TOKEN);
+const bot = new Telegraf(config.BOT_TOKEN);
 
 
 //-------- Loading all modules ----------- //
 
-const pluginsDir = path.join(__dirname, "./plugins/");
+const pluginsDir = path.join(__dirname, "/plugins/");
 fs.readdir(pluginsDir, (err, files) => {
   if (err) {
     console.error("Error reading plugins directory:", err);
