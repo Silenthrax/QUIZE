@@ -1,15 +1,13 @@
-const {Telegraf} = require('telegraf');
+const { Telegraf } = require('telegraf');
 const path = require('path');
 const fs = require("fs");
 const config = require('config');
 
-
-//-------- Create Bot Client ----------- //
+// -------- Create Bot Client ----------- //
 const bot = new Telegraf(config.BOT_TOKEN);
 
 
-//-------- Loading all modules ----------- //
-
+// -------- Loading all modules ----------- //
 const pluginsDir = path.join(__dirname, "/plugins/");
 fs.readdir(pluginsDir, (err, files) => {
   if (err) {
@@ -25,9 +23,10 @@ fs.readdir(pluginsDir, (err, files) => {
       console.log(`Loaded plugin module: ${module}`);
     } else {
       console.log(`Invalid plugin module: ${module}`);
-    };
+    }
   });
 });
+
 
 
 // --------- Error handling ------------- //
@@ -36,7 +35,9 @@ bot.catch((err) => {
 });
 
 // ---------- Start polling -------------- //
-bot.launch({dropPendingUpdates : true});
+bot.launch({ dropPendingUpdates: true });
 console.log("Bot Deployed Successfully !!");
+
+
 
 
