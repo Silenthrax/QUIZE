@@ -12,7 +12,7 @@ const questions = [
   "Give an explanation or type 'no':"
 ];
 
-bot.command('ask', (ctx) => {
+bot.command('addquiz', (ctx) => {
   ctx.reply(questions[0]);
   userStates[ctx.chat.id] = { step: 0, answers: [], active: true };
 });
@@ -41,8 +41,7 @@ bot.on('text', (ctx) => {
 
       delete userStates[ctx.chat.id]; // Clear state after the quiz setup
     }
-  } else if (!userState || !userState.active) {
-    ctx.reply("Please start with the /ask command.");
+  } else if (!userState || !userState.active) {    
   }
 });
 
