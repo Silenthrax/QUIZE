@@ -1,7 +1,7 @@
 const { Telegraf } = require('telegraf');
 const path = require('path');
 const fs = require("fs");
-const config = require('../config');
+const config = require('./config');
 
 // -------- Create Bot Client ----------- //
 const bot = new Telegraf(config.BOT_TOKEN);
