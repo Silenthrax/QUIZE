@@ -4,7 +4,7 @@ const bot = require("../index");
 
 const replyMarkup = {
   inline_keyboard: [
-    [{ text: "➕ Add More ➕", callback_data: "add_more" }]
+    [{ text: "➕ Add More Quiz ➕", callback_data: "add_more" }]
   ]
 };
 
