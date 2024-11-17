@@ -69,8 +69,12 @@ bot.on('text', (ctx) => {
 
 
 
-
 bot.action('add_more', async (ctx) => {
   delete userStates[ctx.chat.id];
   await AddUsersQuiz(ctx);
+  await ctx.answerCallbackQuery({
+    text: 'Your quiz has been reset!',
+    show_alert: false
+  });
 });
+
