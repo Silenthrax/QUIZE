@@ -1,5 +1,5 @@
 const bot = require("../index")
-const Markup = require('telegraf');
+const { Markup } = require('telegraf');
 
 bot.command("start", (ctx) => {
     let name = ctx.from.first_name;
