@@ -47,6 +47,16 @@ bot.on('text', (ctx) => {
       const optionsArray = options.split(',').map((opt, index) => `${index + 1}. ${opt.trim()}`).join('\n');
       const explanationText = explanation.toLowerCase() === 'no' ? "❌ No explanation provided." : explanation;
 
+      if (
+        isNaN(correctOption) ||
+        correctOption < 1 ||
+        correctOption > options.split(',').length
+      ) {
+        ctx.reply("❌ Invalid correct option number. Please restart the quiz creation process.");
+        delete userStates[ctx.chat.id];
+        return;
+      }
+      
       ctx.replyWithHTML(
         `<b>📚 Here is Your Quiz Question:</b>\n\n` +
         `<b>📝 Question</b>: <pre>${quizQuestion}</pre>\n\n` +
