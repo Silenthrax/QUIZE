@@ -1,4 +1,5 @@
-const { bot, LOGGER } = require("../index");
+const { bot } = require("../index");
+
 
 async function getUser_ProfilePic(ctx, userId) {
   const { total_count, photos } = await ctx.telegram.getUserProfilePhotos(userId);
