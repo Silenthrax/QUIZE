@@ -3,7 +3,7 @@
   "version": "1.1",
   "description": "A simple Telegram Quiz Bot using Telegraf",
   "scripts": {
-    "start": "node QuizBot/index.js"
+    "start": "node .QuizBot/index.js"
   },
   "dependencies": {
     "axios": "^1.6.8",
