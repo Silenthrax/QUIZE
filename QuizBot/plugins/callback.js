@@ -1,5 +1,5 @@
 const bot = require("../index");
-const AddUsersQuiz = require("/QuizBot/plugins/addquiz")
+const { AddUsersQuiz } = require("./plugins/addquiz")
 
 
 
