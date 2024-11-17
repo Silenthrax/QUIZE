@@ -2,14 +2,19 @@ const { Telegraf } = require('telegraf');
 const bot = require("../index");
 
 
+const replyMarkup = {
+  inline_keyboard: [
+    [{ text: "➕ Add More ➕", callback_data: "add_more" }]
+  ]
+};
 
 const userStates = {};
 
 const questions = [
-  "Send your quiz question:",
-  "Provide the options (comma-separated, e.g., mango, onion, tomato, potato):",
-  "Which is the correct option? (e.g., 1 for the first option):",
-  "Give an explanation or type 'no':"
+  "📝 Send your quiz question:",
+  "📋 Provide the options (comma-separated, e.g., mango, onion, tomato, potato):",
+  "✅ Which is the correct option? (e.g., 1 for the first option):",
+  "💬 Give an explanation or type 'no':"
 ];
 
 bot.command('addquiz', (ctx) => {
@@ -29,22 +34,21 @@ bot.on('text', (ctx) => {
     } else {
       const [quizQuestion, options, correctOption, explanation] = userState.answers;
       const optionsArray = options.split(',').map((opt, index) => `${index + 1}. ${opt.trim()}`).join('\n');
-      const explanationText = explanation.toLowerCase() === 'no' ? "No explanation provided." : explanation;
+      const explanationText = explanation.toLowerCase() === 'no' ? "❌ No explanation provided." : explanation;
 
-      ctx.reply(
-        `Here's your quiz:\n\n` +
-        `Question: ${quizQuestion}\n\n` +
-        `Options:\n${optionsArray}\n\n` +
-        `Correct Option: ${correctOption}\n\n` +
-        `Explanation: ${explanationText}`
+      ctx.replyWithHTML(
+        `<b>📚 Here is Your Quiz Question:</b>\n\n` +
+        `<b>📝 Question</b>: <pre>${quizQuestion}\n\n` +
+        `<b>📋 Options</b>:\n<pre>${optionsArray}\n\n` +
+        `<b>✅ Correct Option</b>: <pre>${correctOption}\n\n` +
+        `<b>💬 Explanation</b>: <pre>${explanationText}</pre>`,
+        { reply_markup: replyMarkup }
       );
 
       delete userStates[ctx.chat.id]; // Clear state after the quiz setup
     }
-  } else if (!userState || !userState.active) {    
   }
 });
-
 
 
 
