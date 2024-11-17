@@ -2,9 +2,9 @@
   "name": "quizbot",
   "version": "1.0.0",
   "description": "A simple Telegram Quiz Bot using Telegraf",
-  "main": "./QuizBot/index.js",
+  "main": "QuizBot/index",
   "scripts": {
-    "start": "node ./QuizBot/index.js"
+    "start": "node QuizBot/index"
   },
   "dependencies": {
     "telegraf": "^4.12.2"
