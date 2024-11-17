@@ -1,4 +1,4 @@
-const { bot } = require("../index");
+const bot = require("../index");
 const { Markup } = require('telegraf');
 
 
