@@ -1,5 +1,4 @@
 const bot = require("../index")
-const { Telegraf } = require('telegraf');
 
 
 bot.command('quiz', (ctx) => {
