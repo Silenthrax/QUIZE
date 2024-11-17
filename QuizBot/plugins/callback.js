@@ -1,4 +1,5 @@
 const bot = require("../index");
+const { Telegraf } = require("telegraf");
 //const AddUsersQuiz = require("./plugins/addquiz")
 
 
