@@ -2,7 +2,6 @@
   "name": "quizbot",
   "version": "1.0.0",
   "description": "A simple Telegram Quiz Bot using Telegraf",
-  "main": "QuizBot/index",
   "scripts": {
     "start": "node QuizBot/index"
   },
