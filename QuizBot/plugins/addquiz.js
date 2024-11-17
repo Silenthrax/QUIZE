@@ -63,11 +63,18 @@ bot.on('text', (ctx) => {
   }
 });
 
-
+bot.command('adquiz', (ctx) => {
+  ctx.reply(questions[0]);
+  userStates[ctx.chat.id] = { step: 0, answers: [], active: true };
+});
 
 bot.command('addquiz', async (ctx) => {
   await AddUsersQuiz(ctx);
 });
 
 module.exports = AddUsersQuiz;
+
+
+
+
 
