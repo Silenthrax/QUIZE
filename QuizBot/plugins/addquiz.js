@@ -69,5 +69,5 @@ bot.command('addquiz', async (ctx) => {
   await AddUsersQuiz(ctx);
 });
 
-
+module.exports = AddUsersQuiz;
 
