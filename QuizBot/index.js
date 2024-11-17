@@ -28,13 +28,14 @@ fs.readdir(pluginsDir, (err, files) => {
 
 
 
-bot.catch((err) => {
-  console.error('Error:', err);
-});
+// --------- Start-QuizBot ---------- //
 
 bot.launch().then(() => {
-  console.log("QuizBot is running...");
+  console.log('QuizBot is running...');
+}).catch((err) => {
+  console.error('Failed to launch QuizBot:', err);
 });
+
 
 module.exports = bot;
 
