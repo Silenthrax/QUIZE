@@ -7,7 +7,6 @@ const configs = require('../config');
 const bot = new Telegraf(configs.BOT_TOKEN);
 
 
-
 const pluginsDir = path.join(__dirname, "/plugins/");
 fs.readdir(pluginsDir, (err, files) => {
   if (err) {
@@ -33,8 +32,9 @@ bot.catch((err) => {
   console.error('Error:', err);
 });
 
-bot.launch({dropPendingUpdates : true});
-console.log("QuizBot is running...");
+bot.launch({ dropPendingUpdates: true }).then(() => {
+  console.log("QuizBot is running...");
+});
 
+module.exports = bot;
 
-module.exports = bot; 
