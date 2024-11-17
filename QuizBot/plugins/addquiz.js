@@ -2,6 +2,7 @@ const { Telegraf } = require('telegraf');
 const bot = require("../index");
 
 
+
 const replyMarkup = {
   inline_keyboard: [
     [{ text: "➕ Add More Quiz ➕", callback_data: "add_more" }]
@@ -17,10 +18,11 @@ const questions = [
   "💬 Give an explanation or type 'no':"
 ];
 
-async function AddUsersQuiz(ctx){
+
+async function AddUsersQuiz(ctx) {
   ctx.reply(questions[0]);
   userStates[ctx.chat.id] = { step: 0, answers: [], active: true };
-});
+}
 
 bot.on('text', (ctx) => {
   const userState = userStates[ctx.chat.id];
@@ -33,8 +35,19 @@ bot.on('text', (ctx) => {
       ctx.reply(questions[userState.step]);
     } else {
       const [quizQuestion, options, correctOption, explanation] = userState.answers;
+
       const optionsArray = options.split(',').map((opt, index) => `${index + 1}. ${opt.trim()}`).join('\n');
       const explanationText = explanation.toLowerCase() === 'no' ? "❌ No explanation provided." : explanation;
+
+      if (
+        isNaN(correctOption) ||
+        correctOption < 1 ||
+        correctOption > options.split(',').length
+      ) {
+        ctx.reply("❌ Invalid correct option number. Please restart the quiz creation process.");
+        delete userStates[ctx.chat.id];
+        return;
+      }
 
       ctx.replyWithHTML(
         `<b>📚 Here is Your Quiz Question:</b>\n\n` +
@@ -45,14 +58,16 @@ bot.on('text', (ctx) => {
         { reply_markup: replyMarkup }
       );
 
-      delete userStates[ctx.chat.id]; // Clear state after the quiz setup
+      delete userStates[ctx.chat.id];
     }
   }
-}
-
-
-bot.command('addquiz', (ctx) => {
-    await AddUsersQuiz(ctx);
 });
-       
+
+
+
+bot.command('addquiz', async (ctx) => {
+  await AddUsersQuiz(ctx);
+});
+
+
 
