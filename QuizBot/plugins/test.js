@@ -2,39 +2,50 @@ const { Telegraf } = require('telegraf');
 const bot = require("../index");
 
 
-// just testing //
 
 const userStates = {};
 
 const questions = [
-  "What is your name?",
-  "How old are you?",
-  "What is your favorite hobby?"
+  "Send your quiz question:",
+  "Provide the options (comma-separated, e.g., mango, onion, tomato, potato):",
+  "Which is the correct option? (e.g., 1 for the first option):",
+  "Give an explanation or type 'no':"
 ];
 
 bot.command('ask', (ctx) => {
   ctx.reply(questions[0]);
-  userStates[ctx.chat.id] = { step: 0, answers: [] };
+  userStates[ctx.chat.id] = { step: 0, answers: [], active: true };
 });
 
 bot.on('text', (ctx) => {
   const userState = userStates[ctx.chat.id];
 
-  if (userState) {
+  if (userState && userState.active) {
     userState.answers[userState.step] = ctx.message.text;
 
     if (userState.step + 1 < questions.length) {
       userState.step += 1;
       ctx.reply(questions[userState.step]);
     } else {
-      const [name, age, hobby] = userState.answers;
-      ctx.reply(`Thanks for answering!\nName: ${name}\nAge: ${age}\nHobby: ${hobby}`);
-      delete userStates[ctx.chat.id];
+      const [quizQuestion, options, correctOption, explanation] = userState.answers;
+      const optionsArray = options.split(',').map((opt, index) => `${index + 1}. ${opt.trim()}`).join('\n');
+      const explanationText = explanation.toLowerCase() === 'no' ? "No explanation provided." : explanation;
+
+      ctx.reply(
+        `Here's your quiz:\n\n` +
+        `Question: ${quizQuestion}\n\n` +
+        `Options:\n${optionsArray}\n\n` +
+        `Correct Option: ${correctOption}\n\n` +
+        `Explanation: ${explanationText}`
+      );
+
+      delete userStates[ctx.chat.id]; // Clear state after the quiz setup
     }
-  } else {
+  } else if (!userState || !userState.active) {
     ctx.reply("Please start with the /ask command.");
   }
 });
+
 
 
 
