@@ -34,10 +34,14 @@ bot.catch((err) => {
     console.error('Error:', err);
 });
 
-// ---------- Start polling -------------- //
-bot.launch({ dropPendingUpdates: true });
-console.log("QuizBot is Running !!");
+// Launch the bot
+bot.launch().then(() => {
+  console.log("QuizBot is running...");
+});
 
+// Graceful stop
+process.once("SIGINT", () => bot.stop("SIGINT"));
+process.once("SIGTERM", () => bot.stop("SIGTERM"));
 
 
 
