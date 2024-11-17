@@ -1,7 +1,7 @@
 const { Telegraf } = require('telegraf');
 const path = require('path');
 const fs = require("fs");
-const config = require('config');
+const config = require('./config');
 
 // -------- Create Bot Client ----------- //
 const bot = new Telegraf(config.BOT_TOKEN);
@@ -36,7 +36,7 @@ bot.catch((err) => {
 
 // ---------- Start polling -------------- //
 bot.launch({ dropPendingUpdates: true });
-console.log("Bot Deployed Successfully !!");
+console.log("QuizBot is Running !!");
 
 
 
