@@ -33,11 +33,8 @@ bot.catch((err) => {
   console.error('Error:', err);
 });
 
-bot.launch().then(() => {
-  console.log("QuizBot is running...");
-});
+bot.launch({dropPendingUpdates : true});
+console.log("QuizBot is running...");
 
-process.once("SIGINT", () => bot.stop("SIGINT"));
-process.once("SIGTERM", () => bot.stop("SIGTERM"));
 
 module.exports = bot; 
