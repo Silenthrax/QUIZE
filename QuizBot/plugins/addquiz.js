@@ -17,7 +17,7 @@ const questions = [
   "💬 Give an explanation or type 'no':"
 ];
 
-bot.command('addquiz', (ctx) => {
+async function AddUsersQuiz(ctx){
   ctx.reply(questions[0]);
   userStates[ctx.chat.id] = { step: 0, answers: [], active: true };
 });
@@ -48,7 +48,11 @@ bot.on('text', (ctx) => {
       delete userStates[ctx.chat.id]; // Clear state after the quiz setup
     }
   }
+}
+
+
+bot.command('addquiz', (ctx) => {
+    await AddUsersQuiz(ctx);
 });
-
-
+       
 
