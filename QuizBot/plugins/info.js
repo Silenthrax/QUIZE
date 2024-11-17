@@ -41,3 +41,15 @@ bot.command("info", async (ctx) => {
 
 
 
+bot.action('delete_me', async (ctx) => {
+  try {
+    await ctx.telegram.deleteMessage(ctx.chat.id, ctx.callbackQuery.message.message_id);
+
+    if (ctx.callbackQuery.message.reply_to_message) {
+      await ctx.telegram.deleteMessage(ctx.chat.id, ctx.callbackQuery.message.reply_to_message.message_id);
+    }
+  } catch (error) {
+    console.log('Error deleting message:', error);
+  }
+});
+
