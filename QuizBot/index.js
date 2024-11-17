@@ -32,7 +32,7 @@ bot.catch((err) => {
   console.error('Error:', err);
 });
 
-bot.launch({ dropPendingUpdates: true }).then(() => {
+bot.launch().then(() => {
   console.log("QuizBot is running...");
 });
 
