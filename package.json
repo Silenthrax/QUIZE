@@ -6,7 +6,7 @@
     "start": "node QuizBot/index"
   },
   "dependencies": {
-    "telegraf": "^4.12.2"
+    "telegraf": "^4.16.3"
   },
   "author": "Anonymous",
   "license": "GNU MIT"
