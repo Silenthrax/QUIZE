@@ -38,9 +38,9 @@ bot.on('text', (ctx) => {
 
       ctx.replyWithHTML(
         `<b>📚 Here is Your Quiz Question:</b>\n\n` +
-        `<b>📝 Question</b>: <pre>${quizQuestion}\n\n` +
-        `<b>📋 Options</b>:\n<pre>${optionsArray}\n\n` +
-        `<b>✅ Correct Option</b>: <pre>${correctOption}\n\n` +
+        `<b>📝 Question</b>: <pre>${quizQuestion}</pre>\n\n` +
+        `<b>📋 Options</b>:\n<pre>${optionsArray}</pre>\n\n` +
+        `<b>✅ Correct Option</b>: <pre>${correctOption}</pre>\n\n` +
         `<b>💬 Explanation</b>: <pre>${explanationText}</pre>`,
         { reply_markup: replyMarkup }
       );
