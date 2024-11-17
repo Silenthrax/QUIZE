@@ -3,11 +3,11 @@ const path = require('path');
 const fs = require("fs");
 const configs = require('config');
 
-// -------- Create Bot Client ----------- //
+
 const bot = new Telegraf(configs.BOT_TOKEN);
 
 
-// -------- Loading all modules ----------- //
+
 const pluginsDir = path.join(__dirname, "/plugins/");
 fs.readdir(pluginsDir, (err, files) => {
   if (err) {
@@ -29,19 +29,15 @@ fs.readdir(pluginsDir, (err, files) => {
 
 
 
-// --------- Error handling ------------- //
 bot.catch((err) => {
-    console.error('Error:', err);
+  console.error('Error:', err);
 });
 
-// Launch the bot
 bot.launch().then(() => {
   console.log("QuizBot is running...");
 });
 
-// Graceful stop
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
-
 
 
