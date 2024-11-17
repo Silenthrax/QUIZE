@@ -24,6 +24,7 @@ async function AddUsersQuiz(ctx) {
   userStates[ctx.chat.id] = { step: 0, answers: [], active: true };
 }
 
+/*
 bot.on('text', (ctx) => {
   const userState = userStates[ctx.chat.id];
 
@@ -59,6 +60,35 @@ bot.on('text', (ctx) => {
       );
 
       delete userStates[ctx.chat.id];
+    }
+  }
+});
+*/
+
+bot.on('text', (ctx) => {
+  const userState = userStates[ctx.chat.id];
+
+  if (userState && userState.active) {
+    userState.answers[userState.step] = ctx.message.text;
+
+    if (userState.step + 1 < questions.length) {
+      userState.step += 1;
+      ctx.reply(questions[userState.step]);
+    } else {
+      const [quizQuestion, options, correctOption, explanation] = userState.answers;
+      const optionsArray = options.split(',').map((opt, index) => `${index + 1}. ${opt.trim()}`).join('\n');
+      const explanationText = explanation.toLowerCase() === 'no' ? "❌ No explanation provided." : explanation;
+
+      ctx.replyWithHTML(
+        `<b>📚 Here is Your Quiz Question:</b>\n\n` +
+        `<b>📝 Question</b>: <pre>${quizQuestion}</pre>\n\n` +
+        `<b>📋 Options</b>:\n<pre>${optionsArray}</pre>\n\n` +
+        `<b>✅ Correct Option</b>: <pre>${correctOption}</pre>\n\n` +
+        `<b>💬 Explanation</b>: <pre>${explanationText}</pre>`,
+        { reply_markup: replyMarkup }
+      );
+
+      delete userStates[ctx.chat.id]; // Clear state after the quiz setup
     }
   }
 });
