@@ -12,8 +12,7 @@ const replyMarkup = {
 bot.command("help", (ctx) => {
   try {
     let name = ctx.from.first_name || "there"; 
-    ctx.reply(
-      `Hello, ${name},\n\nI am your new Quiz Bot, and I’m built using JavaScript.`,
+    ctx.reply(`Hello, ${name},\n\nI am your new Quiz Bot, and I’m built using JavaScript.`,
       { reply_markup: replyMarkup }
     );
   } catch (error) {
