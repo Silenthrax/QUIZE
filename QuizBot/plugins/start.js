@@ -2,7 +2,7 @@ const bot = require("../index");
 
 // -------------- Buttons ------------------ //
 
-const replyMarkup = {
+const langMarkup = {
   inline_keyboard: [
     [{ text: "English", callback_data: "maintainer_" }],
     [{ text: "Hindi", callback_data: "maintainer_" }],
@@ -12,10 +12,10 @@ const replyMarkup = {
 };
 
 
-const langMarkup = {
+const replyMarkup = {
   inline_keyboard: [
     [{ text: "🧰 Tools", callback_data: "tools_" }],
-    [{ text: "🌐 Languages", callback_data: "languages_" }] // Fixed typo
+    [{ text: "🌐 Languages", callback_data: "languages_" }]
   ]
 };
 
