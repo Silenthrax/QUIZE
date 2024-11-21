@@ -20,10 +20,16 @@ const replyMarkup = {
   ]
 };
 
+const toolsMarkup = {
+  inline_keyboard: [
+    [{ text: "🔐 About", callback_data: "about_" }],
+    [{ text: "🔙 Back ", callback_data: "start_" }]
+  ]
+};
 
 
-// ---------- Start function ------------- //
-const start_func = async (ctx) => {
+// ------------- Start Command ------------- //
+bot.command("start", async (ctx) => {
   try {
     let name = ctx.from.first_name || "there"; 
     await ctx.reply(`Hello, ${name},\n\nWelcome to QuizBot! I'm here to help you create and organize quizzes effortlessly. Just save your questions, and let's turn them into interactive quizzes!`,
@@ -33,12 +39,6 @@ const start_func = async (ctx) => {
     console.error("Error in the start command:", error.message);
     await ctx.reply("Oops! Something went wrong. Please try again later."); 
   }
-}
-
-
-// ------------- Start Command ------------- //
-bot.command("start", async (ctx) => {
-  await start_func(ctx);
 });
 
 
@@ -47,7 +47,8 @@ bot.command("start", async (ctx) => {
 // ----------- Buttons Actions -------------- //
 
 bot.action('tools_', async (ctx) => {
-  await ctx.editMessageText("Tools Here!!");
+  await ctx.editMessageText("Tools Here!!",
+  { reply_markup: toolsMarkup });
 });
 
 bot.action('languages_', async (ctx) => {
@@ -56,7 +57,15 @@ bot.action('languages_', async (ctx) => {
 });
 
 bot.action("start_", async (ctx) => {
-  await start_func(ctx);
+  try {
+    let name = ctx.from.first_name || "there"; 
+    await ctx.editMessageText(`Hello, ${name},\n\nWelcome to QuizBot! I'm here to help you create and organize quizzes effortlessly. Just save your questions, and let's turn them into interactive quizzes!`,
+      { reply_markup: replyMarkup }
+    );
+  } catch (error) {
+    console.error("Error in the start command:", error.message);
+    await ctx.reply("Oops! Something went wrong. Please try again later."); 
+  }
 });
 
 bot.action("maintainer_", async (ctx) => {
