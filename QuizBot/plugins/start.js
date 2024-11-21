@@ -9,7 +9,7 @@ const replyMarkup = {
   ]
 };
 
-bot.command("stat", (ctx) => {
+bot.command("help", (ctx) => {
   try {
     let name = ctx.from.first_name || "there"; 
     ctx.reply(
