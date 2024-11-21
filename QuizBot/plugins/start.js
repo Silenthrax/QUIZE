@@ -1,16 +1,16 @@
 const bot = require("../index");
 
+
 // -------------- Buttons ------------------ //
 
 const langMarkup = {
   inline_keyboard: [
-    [{ text: "English", callback_data: "maintainer_" }],
-    [{ text: "Hindi", callback_data: "maintainer_" }],
-    [{ text: "Chinese", callback_data: "maintainer_" }],
-    [{ text: "Russian", callback_data: "maintainer_" }]
+    [{ text: "🇬🇧 English", callback_data: "maintainer_" }],
+    [{ text: "🇮🇳 Hindi", callback_data: "maintainer_" }],
+    [{ text: "🇨🇳 Chinese", callback_data: "maintainer_" }],
+    [{ text: "🇷🇺 Russian", callback_data: "maintainer_" }]
   ]
 };
-
 
 const replyMarkup = {
   inline_keyboard: [
@@ -20,7 +20,7 @@ const replyMarkup = {
 };
 
 
-bot.command("help", (ctx) => {
+bot.command("start", (ctx) => {
   try {
     let name = ctx.from.first_name || "there"; 
     ctx.reply(`Hello, ${name},\n\nWelcome to QuizBot! I'm here to help you create and organize quizzes effortlessly. Just save your questions, and let's turn them into interactive quizzes!`,
@@ -33,6 +33,9 @@ bot.command("help", (ctx) => {
 });
 
 
+
+// ----------- Buttons Actions -------------- //
+
 bot.action('tools_', async (ctx) => {
   await ctx.reply("Tools Hered !!");
 });
@@ -42,9 +45,8 @@ bot.action('languages_', async (ctx) => {
   { reply_markup: langMarkup });
 });
 
-
 bot.action("maintainer_", async (ctx) => {
-  await ctx.reply("soon!!/nBot under in Maintenanced.");
+  await ctx.reply("soon!!\nBot under in Maintenanced.");
 });
 
 
