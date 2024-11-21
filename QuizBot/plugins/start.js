@@ -45,8 +45,14 @@ bot.action('languages_', async (ctx) => {
   { reply_markup: langMarkup });
 });
 
+/*
 bot.action("maintainer_", async (ctx) => {
   await ctx.reply("soon!!\nBot under in Maintenanced.");
 });
+*/
 
-
+bot.action("maintainer_", async (ctx) => {
+  await ctx.answerCbQuery("The bot is under maintenance. Please check back later.");
+  // You could also update the original message if needed
+  await ctx.editMessageText("Thank you for your choice. The bot is temporarily unavailable.");
+});
