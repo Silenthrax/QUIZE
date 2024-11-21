@@ -8,7 +8,8 @@ const langMarkup = {
     [{ text: "🇬🇧 English", callback_data: "maintainer_" }],
     [{ text: "🇮🇳 Hindi", callback_data: "maintainer_" }],
     [{ text: "🇨🇳 Chinese", callback_data: "maintainer_" }],
-    [{ text: "🇷🇺 Russian", callback_data: "maintainer_" }]
+    [{ text: "🇷🇺 Russian", callback_data: "maintainer_" }],
+    [{ text: "🔙 Back", callback_data: "start_" }]
   ]
 };
 
@@ -20,39 +21,46 @@ const replyMarkup = {
 };
 
 
-bot.command("start", (ctx) => {
+
+// ---------- Start function ------------- //
+const start_func = async (ctx) => {
   try {
     let name = ctx.from.first_name || "there"; 
-    ctx.reply(`Hello, ${name},\n\nWelcome to QuizBot! I'm here to help you create and organize quizzes effortlessly. Just save your questions, and let's turn them into interactive quizzes!`,
+    await ctx.reply(`Hello, ${name},\n\nWelcome to QuizBot! I'm here to help you create and organize quizzes effortlessly. Just save your questions, and let's turn them into interactive quizzes!`,
       { reply_markup: replyMarkup }
     );
   } catch (error) {
     console.error("Error in the start command:", error.message);
-    ctx.reply("Oops! Something went wrong. Please try again later."); 
+    await ctx.reply("Oops! Something went wrong. Please try again later."); 
   }
+}
+
+
+// ------------- Start Command ------------- //
+bot.command("start", async (ctx) => {
+  await start_func(ctx);
 });
+
 
 
 
 // ----------- Buttons Actions -------------- //
 
 bot.action('tools_', async (ctx) => {
-  await ctx.reply("Tools Hered !!");
+  await ctx.editMessageText("Tools Here!!");
 });
 
 bot.action('languages_', async (ctx) => {
-  await ctx.reply("Select Your Preferred Languanges.",
-  { reply_markup: langMarkup });
+  await ctx.editMessageText("Select Your Preferred Languages.",
+    { reply_markup: langMarkup });
 });
 
-/*
-bot.action("maintainer_", async (ctx) => {
-  await ctx.reply("soon!!\nBot under in Maintenanced.");
+bot.action("start_", async (ctx) => {
+  await start_func(ctx);
 });
-*/
 
 bot.action("maintainer_", async (ctx) => {
   await ctx.answerCbQuery("The bot is under maintenance. Please check back later.");
-  // You could also update the original message if needed
-  await ctx.editMessageText("Thank you for your choice. The bot is temporarily unavailable.");
 });
+
+
