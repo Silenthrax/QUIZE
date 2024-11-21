@@ -1,15 +1,12 @@
 const bot = require("../index");
-const { Markup } = require('telegraf');
+
+
 
 bot.command("start", async (ctx) => {
     try {
         let name = ctx.from.first_name;
         await ctx.reply(
             `Hello, ${name},\n\nWelcome to QuizBot! I'm here to help you create and organize quizzes effortlessly. Just save your questions, and let's turn them into interactive quizzes!`,
-            Markup.inlineKeyboard([
-                [Markup.button.callback("Helps", "HELP")],
-                [Markup.button.callback("Languages", "LANGUAGES")]
-            ])
         );
     } catch (error) {
         console.error("Error in start command:", error);
