@@ -22,8 +22,10 @@ const replyMarkup = {
 
 const toolsMarkup = {
   inline_keyboard: [
-    [{ text: "🔐 About", callback_data: "about_" }],
-    [{ text: "🔙 Back ", callback_data: "start_" }]
+    [
+      { text: "🔐 About", callback_data: "about_" },
+      { text: "🔙 Back", callback_data: "start_" }
+    ]
   ]
 };
 
@@ -66,6 +68,13 @@ bot.action("start_", async (ctx) => {
     console.error("Error in the start command:", error.message);
     await ctx.reply("Oops! Something went wrong. Please try again later."); 
   }
+});
+
+bot.action("about_", async (ctx) => {
+  await ctx.editMessageText("About section", 
+    {reply_markup: {inline_keyboard: [
+    [{ text: "🔙 Back", callback_data: "start_" }]
+        ]}});
 });
 
 bot.action("maintainer_", async (ctx) => {
