@@ -73,7 +73,10 @@ bot.action("start_", async (ctx) => {
 bot.action("about_", async (ctx) => {
   await ctx.editMessageText("About section", 
     {reply_markup: {inline_keyboard: [
-    [{ text: "🔙 Back", callback_data: "start_" }]
+    [
+      { text: "⛪ Home", callback_data: "start_" },
+      { text: "🔙 Back", callback_data: "tools_" },
+    ]
         ]}});
 });
 
