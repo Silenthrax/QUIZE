@@ -12,7 +12,7 @@ const replyMarkup = {
 bot.command("help", (ctx) => {
   try {
     let name = ctx.from.first_name || "there"; 
-    ctx.reply(`Hello, ${name},\n\nI am your new Quiz Bot, and I’m built using JavaScript.`,
+    ctx.reply(`Hello, ${name},\n\nWelcome to QuizBot! I'm here to help you create and organize quizzes effortlessly. Just save your questions, and let's turn them into interactive quizzes!`,
       { reply_markup: replyMarkup }
     );
   } catch (error) {
