@@ -15,16 +15,12 @@ const replyMarkup = {
 
 
 
-bot.command("start", async (ctx) => {
-    try {
-        let name = ctx.from.first_name;
-        await ctx.reply(
-            `Hello, ${name},\n\nWelcome to QuizBot! I'm here to help you create and organize quizzes effortlessly.`,
-        );
-    } catch (error) {
-        console.error("Error in start command:", error);
-        await ctx.reply("An error occurred. Please try again later.");
-    }
+bot.command("start", (ctx) => {
+    let name = ctx.from.first_name;
+    ctx.reply(`Hello, ${name},\n\nI am your new Quiz Bot, and I’m built using JavaScript.`,
+        Markup.inlineKeyboard([
+            [Markup.button.url("Source", "https://github.com/Sumit0045/QuizBot")]
+        ]));
 });
 
 
