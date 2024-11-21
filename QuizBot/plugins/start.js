@@ -1,6 +1,19 @@
 const bot = require("../index");
 
 
+// -------------- Buttons ------------------ //
+
+const replyMarkup = {
+  inline_keyboard: [
+    [{ text: "🧰 Tools", callback_data: "tools_" }],
+    [{ text: "🌐 Languanges", callback_data: "languages_" }]
+  ]
+};
+
+
+
+
+
 
 bot.command("start", async (ctx) => {
     try {
@@ -14,28 +27,6 @@ bot.command("start", async (ctx) => {
     }
 });
 
-bot.action("HELP", async (ctx) => {
-    try {
-        await ctx.reply(
-            "Here is some information on how to use QuizBot:\n\n1. Save your questions.\n2. Create interactive quizzes.\n3. Manage and organize them easily."
-        );
-        await ctx.answerCbQuery(); // Close the button click notification
-    } catch (error) {
-        console.error("Error in HELP action:", error);
-        await ctx.reply("An error occurred while processing your request.");
-    }
-});
 
-bot.action("LANGUAGES", async (ctx) => {
-    try {
-        await ctx.reply(
-            "Currently supported languages:\n- English\n- Spanish\n- French\n- German"
-        );
-        await ctx.answerCbQuery(); // Close the button click notification
-    } catch (error) {
-        console.error("Error in LANGUAGES action:", error);
-        await ctx.reply("An error occurred while processing your request.");
-    }
-});
 
 
