@@ -1,5 +1,5 @@
 const bot = require("../index");
-const { START_TEXT } = require("../core/formats");
+const { START_TEXT, TOOLS_TEXT, ABOUT_TEXT } = require("../core/formats");
 
 // -------------- Buttons ------------------ //
 
@@ -49,7 +49,7 @@ bot.command("start", async (ctx) => {
 // ----------- Buttons Actions -------------- //
 
 bot.action('tools_', async (ctx) => {
-  await ctx.editMessageText("Tools Here!!",
+  await ctx.editMessageText(TOOLS_TEXT.English,
   { reply_markup: toolsMarkup });
 });
 
@@ -61,7 +61,7 @@ bot.action('languages_', async (ctx) => {
 bot.action("start_", async (ctx) => {
   try {
     let name = ctx.from.first_name || "there"; 
-    await ctx.editMessageText(`Hello, ${name},\n\nWelcome to QuizBot! I'm here to help you create and organize quizzes effortlessly. Just save your questions, and let's turn them into interactive quizzes!`,
+    await ctx.editMessageText(START_TEXT.English.replace("{}",name),
       { reply_markup: replyMarkup }
     );
   } catch (error) {
@@ -71,7 +71,7 @@ bot.action("start_", async (ctx) => {
 });
 
 bot.action("about_", async (ctx) => {
-  await ctx.editMessageText("About section", 
+  await ctx.editMessageText(ABOUT_TEXT.English, 
     {reply_markup: {inline_keyboard: [
     [
       { text: "⛪ Home", callback_data: "start_" },
