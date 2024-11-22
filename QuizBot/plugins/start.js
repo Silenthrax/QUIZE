@@ -34,7 +34,7 @@ const toolsMarkup = {
 bot.command("start", async (ctx) => {
   try {
     let name = ctx.from.first_name || "there"; 
-    await ctx.reply(`Hello, ${name},\n\nWelcome to QuizBot! I'm here to help you create and organize quizzes effortlessly. Just save your questions, and let's turn them into interactive quizzes!`,
+    await ctx.reply(START_TEXT.English,
       { reply_markup: replyMarkup }
     );
   } catch (error) {
