@@ -34,7 +34,7 @@ const toolsMarkup = {
 bot.command("start", async (ctx) => {
   try {
     let name = ctx.from.first_name || "there"; 
-    await ctx.replyWithHTML(START_TEXT.English.replace("{}",name),
+    await ctx.reply(START_TEXT.English.replace("{}",name),
       { reply_markup: replyMarkup }
     );
   } catch (error) {
@@ -71,7 +71,7 @@ bot.action("start_", async (ctx) => {
 });
 
 bot.action("about_", async (ctx) => {
-  await ctx.editMessageText(ABOUT_TEXT.English, 
+  await ctx.editMessageText(ABOUT_TEXT.English,{parse_mode: "HTML"} 
     {reply_markup: {inline_keyboard: [
     [
       { text: "⛪ Home", callback_data: "start_" },
