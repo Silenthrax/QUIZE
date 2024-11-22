@@ -1,4 +1,4 @@
-const bot = require("../index")
+const bot = require("../index");
 
 
 // --------------- Start Quiz ---------------- //
@@ -24,7 +24,6 @@ bot.command('quiz', (ctx) => {
 });
 
 
-
 // ------------- Add Quiz ------------- //
 
 const replyMarkup = {
@@ -42,7 +41,6 @@ const questions = [
   "💬 Give an explanation or type 'no':"
 ];
 
-
 async function AddUsersQuiz(ctx) {
   ctx.reply(questions[0]);
   userStates[ctx.chat.id] = { step: 0, answers: [], active: true };
@@ -53,9 +51,11 @@ bot.command('addquiz', async (ctx) => {
 });
 
 
+// -------------- Text Handler ------------- //
 bot.on('text', (ctx) => {
   const userState = userStates[ctx.chat.id];
 
+  // Process text only if the user is actively adding a quiz
   if (userState && userState.active) {
     userState.answers[userState.step] = ctx.message.text;
 
@@ -78,7 +78,6 @@ bot.on('text', (ctx) => {
       }
       
       ctx.replyWithHTML(`
-      
 <b>📚 Here is Your Quiz Question:</b>
     
 <b>📝 Question</b>: <pre>${quizQuestion}</pre>
@@ -88,12 +87,10 @@ bot.on('text', (ctx) => {
         { reply_markup: replyMarkup }
       );
 
-      delete userStates[ctx.chat.id]; // Clear state after the quiz setup
+      delete userStates[ctx.chat.id]; 
     }
   }
 });
-
-
 
 // ------------ Add More Action -------------- //
 
@@ -101,9 +98,6 @@ bot.action('add_more', async (ctx) => {
   delete userStates[ctx.chat.id];
   await AddUsersQuiz(ctx);
 });
-
-
-
 
 
 
