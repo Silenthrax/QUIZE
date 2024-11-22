@@ -77,12 +77,14 @@ bot.on('text', (ctx) => {
         return;
       }
       
-      ctx.replyWithHTML(
-        `<b>📚 Here is Your Quiz Question:</b>\n\n` +
-        `<b>📝 Question</b>: <pre>${quizQuestion}</pre>\n\n` +
-        `<b>📋 Options</b>:\n<pre>${optionsArray}</pre>\n\n` +
-        `<b>✅ Correct Option</b>: <pre>${correctOption}</pre>\n\n` +
-        `<b>💬 Explanation</b>: <pre>${explanationText}</pre>`,
+      ctx.replyWithHTML(`
+      
+<b>📚 Here is Your Quiz Question:</b>
+    
+<b>📝 Question</b>: <pre>${quizQuestion}</pre>
+<b>📋 Options</b>:\n<pre>${optionsArray}</pre>
+<b>✅ Correct Option</b>: <pre>${correctOption}</pre> 
+<b>💬 Explanation</b>: <pre>${explanationText}</pre>`,
         { reply_markup: replyMarkup }
       );
 
