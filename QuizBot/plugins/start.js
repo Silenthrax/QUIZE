@@ -1,5 +1,5 @@
 const bot = require("../index");
-const { START_TEXT } = require("./core/formats");
+const { START_TEXT } = require("../core/formats");
 
 // -------------- Buttons ------------------ //
 
