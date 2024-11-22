@@ -70,9 +70,11 @@ bot.action("start_", async (ctx) => {
   }
 });
 
+
 bot.action("about_", async (ctx) => {
-  await ctx.editMessageText(ABOUT_TEXT.English,{parse_mode: "HTML"} 
-    {reply_markup: {inline_keyboard: [
+  await ctx.editMessageText(ABOUT_TEXT.English,{
+    parse_mode: "HTML",
+    reply_markup: {inline_keyboard: [
     [
       { text: "⛪ Home", callback_data: "start_" },
       { text: "🔙 Back", callback_data: "tools_" },
