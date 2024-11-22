@@ -34,7 +34,7 @@ const toolsMarkup = {
 bot.command("start", async (ctx) => {
   try {
     let name = ctx.from.first_name || "there"; 
-    await ctx.reply(START_TEXT.English,
+    await ctx.reply(START_TEXT.English.replace("{}",name),
       { reply_markup: replyMarkup }
     );
   } catch (error) {
