@@ -96,7 +96,7 @@ const questions = [
   "💬 Give an explanation or type 'no':"
 ];
 
-const replyMarkup = {
+const AddmoreMarkup = {
   inline_keyboard: [
     [{ text: "➕ Add More Quiz ➕", callback_data: "add_more" }]
   ]
@@ -154,7 +154,7 @@ bot.on('text', (ctx) => {
 <b>📋 Options:</b> ${optionsArray.map((opt, idx) => `${idx + 1}. ${opt}`).join('\n')}
 <b>✅ Correct Option:</b> ${correctOption}
 <b>💬 Explanation:</b> ${explanationText}`,
-        { reply_markup: replyMarkup }
+        { reply_markup: AddmoreMarkup }
       );
 
       delete userStates[ctx.chat.id];
