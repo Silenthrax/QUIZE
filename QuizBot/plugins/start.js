@@ -87,6 +87,7 @@ bot.action("maintainer_", async (ctx) => {
 
 
 // -------------- Quizes ------------- //
+/*
 const userStates = {};
 
 const questions = [
@@ -161,6 +162,27 @@ bot.on('text', (ctx) => {
     }
   }
 });
+
+
+*/
+
+
+bot.on('message', (ctx) => {
+    // Check if the message contains a quiz poll
+    if (ctx.message.poll && ctx.message.poll.is_quiz) {
+        // Convert the poll to JSON and log it
+        const quizData = ctx.message.poll;
+        console.log('Quiz Poll JSON:', JSON.stringify(quizData, null, 2));
+
+        // Reply to the user with the JSON data
+        ctx.reply(`Here is the JSON of your quiz poll:\n\`\`\`\n${JSON.stringify(quizData, null, 2)}\n\`\`\``, {
+            parse_mode: 'Markdown'
+        });
+    } else {
+        ctx.reply("Please send a quiz poll to get the JSON data.");
+    }
+});
+
 
 
 
