@@ -12,7 +12,7 @@ const START_TEXT = {
 // ---------------- Tools Text ---------------- //
 
 const TOOLS_TEXT = {
-  "English": "",
+  "English": "⚙️ Tools Text",
   "Hindi": "",
   "Chinese": "",
   "Russian": ""
