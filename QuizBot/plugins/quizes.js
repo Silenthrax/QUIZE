@@ -139,6 +139,7 @@ function parseQuizData(data) {
 
     lines.forEach((line) => {
         line = line.trim();
+
         if (line.startsWith('Question:')) {
             if (Object.keys(currentQuestion).length > 0) {
                 questions.push(currentQuestion);
@@ -153,8 +154,8 @@ function parseQuizData(data) {
             const optionKey = line[0];
             const optionText = line.slice(2).trim();
             currentQuestion.options[optionKey] = optionText;
-        } else if (/^\d+/.test(line)) {
-            currentQuestion.correctAnswer = line.trim();
+        } else if (line.startsWith('Answer:')) {
+            currentQuestion.correctAnswer = parseInt(line.replace('Answer:', '').trim(), 10);
         } else if (line.startsWith('Explanation:')) {
             currentQuestion.explanation = line.replace('Explanation:', '').trim();
         }
@@ -167,8 +168,7 @@ function parseQuizData(data) {
     return questions;
 }
 
-
-// ------------------- Multi Quiz ------------------- //
+// --------------- Multi Quiz ----------------- //
 
 bot.command('multiquiz', async (ctx) => {
     const message = ctx.message.reply_to_message;
