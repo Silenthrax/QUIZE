@@ -7,57 +7,86 @@ bot.command("addquiz", async (ctx) => {
     const msg = ctx.message.text.split("/addquiz ")[1];
     if (!msg || msg.trim() === "") {
       await ctx.reply(
-        "Please provide the question in the following format:\n" +
-        "/addquiz\n1. Question text\nA. Option 1\nB. Option 2\nC. Option 3\nD. Option 4\nAnswer (Option number)\nExplanation (optional)"
+        "📝 **Quiz Format Guide**:\n" +
+        "Please use the following format to add a quiz:\n\n" +
+        "`/addquiz`\n" +
+        "Question text\n" +
+        "Option 1\n" +
+        "Option 2\n" +
+        "Option 3\n" +
+        "Option 4\n" +
+        "✅ Answer (Option number)\n" +
+        "ℹ️ Explanation (optional)"
       );
       return;
     }
 
     const lines = msg.split("\n").map(line => line.trim()).filter(line => line !== "");
 
-    if (lines.length < 5) {
-      await ctx.reply("Error: Please provide the question in the correct format.");
+    if (lines.length < 3) {
+      await ctx.reply("⚠️ **Error**: Your quiz format is incomplete. Please include a question, options, and an answer.");
       return;
     }
 
-    const question = lines[0].replace(/\s+/g, " ").trim(); // Normalize spaces in the question
-    const options = {};
+    // Extract the question
+    const question = lines[0].replace(/\s+/g, " ").trim(); // Normalize spaces
+    if (!question) {
+      await ctx.reply("❌ **Error**: Question is missing! Please start with a clear question in your quiz format.");
+      return;
+    }
 
-    let answer, explanation;
+    // Extract options
+    const options = [];
+    let answerIndex = -1;
+    let explanation = "ℹ️ No explanation provided.";
 
     for (let i = 1; i < lines.length; i++) {
-      if (lines[i].match(/^[A-D]\./)) {
-        const optionLabel = lines[i].charAt(0).toUpperCase();
-        options[optionLabel] = lines[i].slice(2).trim();
-      } else if (!isNaN(parseInt(lines[i], 10))) {
-        answer = parseInt(lines[i], 10);
-        if (answer < 1 || answer > 4) { // Ensure answer is valid
-          await ctx.reply("Error: Invalid answer option number. It should be between 1 and 4.");
+      if (!isNaN(parseInt(lines[i], 10))) {
+        answerIndex = parseInt(lines[i], 10);
+        if (answerIndex < 1 || answerIndex > options.length) {
+          await ctx.reply("❌ **Error**: The answer is invalid or out of range. Please make sure the answer matches one of the options (e.g., 1, 2, 3, or 4).");
           return;
         }
-      } else if (i === lines.length - 1) {
-        explanation = lines[i].trim() || "No explanation provided.";
+      } else if (i === lines.length - 1 && answerIndex !== -1) {
+        explanation = lines[i].trim() || "ℹ️ No explanation provided.";
+      } else {
+        options.push(lines[i]);
       }
     }
 
-    if (!answer) {
-      await ctx.reply("Error: The answer must be a number. Please provide it in a valid format.");
+    if (options.length === 0) {
+      await ctx.reply("⚠️ **Error**: No options provided! Please include at least one option for the quiz.");
+      return;
+    }
+
+    if (answerIndex === -1) {
+      await ctx.reply("❌ **Error**: Answer is missing! Please specify the correct answer as a number (e.g., 1, 2, 3, or 4).");
       return;
     }
 
     const quiz = {
       question,
       options,
-      answer,
-      explanation: explanation || "No explanation provided.",
+      answer: answerIndex,
+      explanation,
     };
 
-    await ctx.reply(`Quiz added successfully:\n${JSON.stringify(quiz, null, 2)}`);
+    // Format options for the response
+    const formattedOptions = options.map((option, index) => `\n${index + 1}. ${option}`).join("");
+
+    await ctx.reply(
+      `🎉 **Quiz Added Successfully!**\n\n` +
+      `📖 **Question**: ${quiz.question}\n` +
+      `📋 **Options**:${formattedOptions}\n` +
+      `✅ **Answer**: ${quiz.answer}\n` +
+      `ℹ️ **Explanation**: ${quiz.explanation}`
+    );
   } catch (error) {
     console.error(error);
-    await ctx.reply("Error occurred while processing the quiz. Please check the format and try again.");
+    await ctx.reply("⚠️ **Error**: Something went wrong while processing your quiz. Please check the format and try again.");
   }
 });
+
 
 
 
