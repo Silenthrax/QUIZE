@@ -3,40 +3,42 @@ const { MONGO_DB } = require("../../../config");
 
 const client = new MongoClient(MONGO_DB);
 
-db = client.db("QuizBot");
-users = db.collection("users");
+const db = client.db("QuizBot");
+const users = db.collection("users");
 
-
-
-async function add_users(user) {
+async function add_user(user) {
     try {
+        const existingUser = await users.findOne({ _id: user._id });
+        if (existingUser) {
+            console.log("User already exists. Skipping insertion.");
+            return null;
+        }
+
         const result = await users.insertOne(user);
-        console.log("user added successfully:", result.insertedId);
+        console.log("User added successfully:", result.insertedId);
         return result.insertedId;
     } catch (error) {
-        console.error("Error adding users:", error);
+        console.error("Error adding user:", error);
         throw error;
     }
 }
 
-
 async function get_all_users() {
     try {
-        const allusers = await users.find({}).toArray();
-        console.log("Chats retrieved successfully all users");
-        return allusers;
+        const allUsers = await users.find({}).toArray();
+        console.log("Users retrieved successfully:", allUsers.length);
+        return allUsers;
     } catch (error) {
         console.error("Error retrieving users:", error);
         throw error;
     }
 }
 
-
-async function remove_user(userID) {
+async function remove_user(userId) {
     try {
         const result = await users.deleteOne({ _id: userId });
         if (result.deletedCount === 1) {
-            console.log("user removed successfully");
+            console.log("User removed successfully");
             return true;
         } else {
             console.log("No user found with the specified ID");
@@ -48,15 +50,11 @@ async function remove_user(userID) {
     }
 }
 
-
-
 module.exports = {
-    add_users,
+    add_user,
     get_all_users,
-    remove_user
+    remove_user,
 };
-
-
 
 
 
