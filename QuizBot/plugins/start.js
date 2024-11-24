@@ -37,7 +37,7 @@ bot.command("start", async (ctx) => {
   try {
     let name = ctx.from.first_name || "there"; 
     let user_id = ctx.from.id
-    await add_lang("English")
+    await add_lang(user_id, "English")
     let langs = await get_lang(user_id)
     await ctx.reply(START_TEXT.langs.replace("{}",name),
       { reply_markup: replyMarkup }
