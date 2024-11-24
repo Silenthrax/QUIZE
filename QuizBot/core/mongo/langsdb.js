@@ -1,7 +1,7 @@
 const { MongoClient } = require("mongodb");
 const { configs } = require("../../../config");
 
-let client = new MongoClient(configs.MONGO_DB);
+const client = new MongoClient("mongodb+srv://QuizBot:QuizBot@cluster0.slbm5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
 const db = client.db("QuizBot");
 const langs = db.collection("language");
