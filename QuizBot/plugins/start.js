@@ -41,6 +41,7 @@ bot.command("start", async (ctx) => {
   try {
     const name = ctx.from.first_name || "there"; 
     const user_id = ctx.from.id;
+    const chat_name = ctx.message.chat.first_name
     const chat_id = ctx.message.chat.id
     await add_user(user_id, name);
     let langs = await get_lang(user_id);
@@ -57,7 +58,7 @@ bot.command("start", async (ctx) => {
         reply_markup: replyMarkup,
       });
     } else {
-      await add_chat(chat_id);
+      await add_chat(chat_id, chat_name);
       await ctx.reply("I am alive 😜.");
     }
   } catch (error) {
