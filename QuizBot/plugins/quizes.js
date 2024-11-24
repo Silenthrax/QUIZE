@@ -1,16 +1,28 @@
 const bot = require("../index");
 
-// -------------- Add Quizzes ------------- //
 
-bot.command("addquiz", async (ctx) => {
+
+const AddmoreMarkup = {
+  inline_keyboard: [
+    [{ text: "🔐 Add More Quiz", callback_data: "add_more" }]
+  ]};
+
+const TryAgainMarkup = {
+  inline_keyboard: [
+    [{ text: "🔐 Try Again", callback_data: "try_again" }]
+  ]};
+
+
+// -------------- Add Quizzes Function ------------- //
+
+const addquiz = async (ctx) => {
   try {
     const msg = ctx.message.text.split("/addquiz ")[1];
     if (!msg || msg.trim() === "") {
       await ctx.reply(
         "📝 **Quiz Format Guide**:\n" +
         "Please use the following format to add a quiz:\n\n" +
-        "`/addquiz`\n" +
-        "Question text\n" +
+        "`/addquiz` Question text\n" +
         "Option 1\n" +
         "Option 2\n" +
         "Option 3\n" +
@@ -24,14 +36,14 @@ bot.command("addquiz", async (ctx) => {
     const lines = msg.split("\n").map(line => line.trim()).filter(line => line !== "");
 
     if (lines.length < 3) {
-      await ctx.reply("⚠️ **Error**: Your quiz format is incomplete. Please include a question, options, and an answer.");
+      await ctx.replyWithHTML("⚠️ **Error**: Your quiz format is incomplete. Please include a question, options, and an answer.");
       return;
     }
 
     // Extract the question
     const question = lines[0].replace(/\s+/g, " ").trim(); // Normalize spaces
     if (!question) {
-      await ctx.reply("❌ **Error**: Question is missing! Please start with a clear question in your quiz format.");
+      await ctx.replyWithHTML("❌ **Error**: Question is missing! Please start with a clear question in your quiz format.");
       return;
     }
 
@@ -44,7 +56,7 @@ bot.command("addquiz", async (ctx) => {
       if (!isNaN(parseInt(lines[i], 10))) {
         answerIndex = parseInt(lines[i], 10);
         if (answerIndex < 1 || answerIndex > options.length) {
-          await ctx.reply("❌ **Error**: The answer is invalid or out of range. Please make sure the answer matches one of the options (e.g., 1, 2, 3, or 4).");
+          await ctx.replyWithHTML("❌ **Error**: The answer is invalid or out of range. Please make sure the answer matches one of the options (e.g., 1, 2, 3, or 4).");
           return;
         }
       } else if (i === lines.length - 1 && answerIndex !== -1) {
@@ -55,12 +67,12 @@ bot.command("addquiz", async (ctx) => {
     }
 
     if (options.length === 0) {
-      await ctx.reply("⚠️ **Error**: No options provided! Please include at least one option for the quiz.");
+      await ctx.replyWithHTML("⚠️ **Error**: No options provided! Please include at least one option for the quiz.");
       return;
     }
 
     if (answerIndex === -1) {
-      await ctx.reply("❌ **Error**: Answer is missing! Please specify the correct answer as a number (e.g., 1, 2, 3, or 4).");
+      await ctx.replyWithHTML("❌ **Error**: Answer is missing! Please specify the correct answer as a number (e.g., 1, 2, 3, or 4).");
       return;
     }
 
@@ -74,7 +86,7 @@ bot.command("addquiz", async (ctx) => {
     // Format options for the response
     const formattedOptions = options.map((option, index) => `\n${index + 1}. ${option}`).join("");
 
-    await ctx.reply(
+    await ctx.replyWithHTML(
       `🎉 **Quiz Added Successfully!**\n\n` +
       `📖 **Question**: ${quiz.question}\n` +
       `📋 **Options**:${formattedOptions}\n` +
@@ -83,10 +95,16 @@ bot.command("addquiz", async (ctx) => {
     );
   } catch (error) {
     console.error(error);
-    await ctx.reply("⚠️ **Error**: Something went wrong while processing your quiz. Please check the format and try again.");
+    await ctx.replyWithHTML("⚠️ **Error**: Something went wrong while processing your quiz. Please check the format and try again.");
   }
+};
+
+
+bot.command("addquiz", async (ctx) => {
+  await addquiz(ctx)  
 });
 
-
-
+bot.action.("", async (ctx) => {
+  await addquiz(ctx)
+});
 
