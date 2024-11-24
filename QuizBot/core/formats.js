@@ -12,7 +12,9 @@ const START_TEXT = {
 // ---------------- Tools Text ---------------- //
 
 const TOOLS_TEXT = {
-  "English": `⚙️ Quiz Tools
+  "English": `<b>⚙️ Quiz Tools</b>
+
+Here are all the commands related to the Quiz bot:
 
 → <code>/addquiz</code> : Add quizzes one by one.
 → <code>/multiquiz</code> : Send a file with the quizzes, reply with this command, and multiple quizzes will be created.
@@ -22,7 +24,9 @@ const TOOLS_TEXT = {
 
 <i>You will be able to use all these commands in the bot.</i>
 `,
-  "Hindi": `⚙️ क्विज़ टूल्स
+  "Hindi": `<b>⚙️ क्विज़ टूल्स</b>
+
+यहां सभी कमांड दिए गए हैं जो क्विज़ बॉट से संबंधित हैं:
 
 → <code>/addquiz</code> : एक-एक करके क्विज़ जोड़ें।
 → <code>/multiquiz</code> : क्विज़ के साथ एक फ़ाइल भेजें, इस कमांड का उत्तर दें, और कई क्विज़ बनाए जाएंगे।
@@ -32,7 +36,9 @@ const TOOLS_TEXT = {
 
 <i>आप इन सभी कमांड्स को बॉट में उपयोग कर सकेंगे।</i>
 `,
-  "Chinese": `⚙️ 测验工具
+  "Chinese": `<b>⚙️ 测验工具</b>
+
+以下是与测验机器人相关的所有命令：
 
 → <code>/addquiz</code> : 一次添加一个测验。
 → <code>/multiquiz</code> : 发送包含测验的文件，回复此命令，将创建多个测验。
@@ -42,7 +48,9 @@ const TOOLS_TEXT = {
 
 <i>您将能够在机器人中使用所有这些命令。</i>
 `,
-  "Russian": `⚙️ Инструменты для викторин
+  "Russian": `<b>⚙️ Инструменты для викторин</b>
+
+Вот все команды, связанные с викторинным ботом:
 
 → <code>/addquiz</code> : Добавляйте викторины по одной.
 → <code>/multiquiz</code> : Отправьте файл с викторинами, ответьте этой командой, и будет создано несколько викторин.
