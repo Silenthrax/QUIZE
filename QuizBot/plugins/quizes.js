@@ -155,7 +155,11 @@ function parseQuizData(data) {
             const optionText = line.slice(2).trim();
             currentQuestion.options[optionKey] = optionText;
         } else if (line.startsWith('Answer:')) {
-            currentQuestion.correctAnswer = parseInt(line.replace('Answer:', '').trim(), 10);
+            const answer = line.replace('Answer:', '').trim();
+            if (!/^\d+$/.test(answer)) {
+                throw new Error("Give me answer in integer");
+            }
+            currentQuestion.correctAnswer = parseInt(answer, 10);
         } else if (line.startsWith('Explanation:')) {
             currentQuestion.explanation = line.replace('Explanation:', '').trim();
         }
@@ -167,6 +171,7 @@ function parseQuizData(data) {
 
     return questions;
 }
+
 
 // --------------- Multi Quiz ----------------- //
 
@@ -195,12 +200,9 @@ bot.command('multiquiz', async (ctx) => {
         );
     } catch (error) {
         console.error("Error processing the file:", error);
-        ctx.reply("Failed to process the file. Please ensure it's correctly formatted.");
+        ctx.reply("Failed to process the file. Please ensure it's correctly formatted. " + (error.message || ""));
     }
 });
-
-
-
 
 
 
