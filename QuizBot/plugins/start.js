@@ -36,25 +36,29 @@ const toolsMarkup = {
 // ------------- Start Command ------------- //
 bot.command("start", async (ctx) => {
   try {
-    let name = ctx.from.first_name || "there"; 
-    let user_id = ctx.from.id;
+    const name = ctx.from.first_name || "there"; 
+    const user_id = ctx.from.id;
+    const chat_id = ctx.message.chat.id
+    await add_users(user_id);
     let langs = await get_lang(user_id);
 
     if (!langs) {
-      await add_lang(user_id, "English");
       langs = "English";
+      await add_lang(user_id, langs);
     }
 
-    let startText = START_TEXT[langs];
-    if (!startText) {
-      throw new Error(`START_TEXT not defined for language: ${langs}`);
+    const startText = START_TEXT[langs] || START_TEXT["English"];
+    
+    if (ctx.message.chat.type === "private") {
+      await ctx.reply(startText.replace("{}", name), {
+        reply_markup: replyMarkup,
+      });
+    } else {
+      await add_chats(chat_id);
+      await ctx.reply("I am alive 😜.");
     }
-
-    await ctx.reply(startText.replace("{}", name), {
-      reply_markup: replyMarkup,
-    });
   } catch (error) {
-    console.error("Error in the start command:", error.message);
+    console.error("Error in the start command:", error);
     await ctx.reply("Oops! Something went wrong. Please try again later.");
   }
 });
