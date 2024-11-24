@@ -1,6 +1,9 @@
 const bot = require("../index");
 const { START_TEXT, TOOLS_TEXT, ABOUT_TEXT } = require("../core/formats");
 const { add_lang, get_lang } = require("../core/mongo/langsdb");
+const { add_users } = require("../core/mongo/usersdb");
+const { add_chats } = require("../core/mongo/chatsdb");
+
 
 
 // -------------- Buttons ------------------ //
