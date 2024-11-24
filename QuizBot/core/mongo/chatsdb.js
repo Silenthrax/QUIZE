@@ -7,8 +7,8 @@ const db = client.db("QuizBot");
 const chats = db.collection("chats");
 
 async function check_if_chats_exists(chatid) {
-    const chat = await users.findOne({ "user_id": userid });
-    return chat !== null; // Returns true if user exists, false otherwise
+    const chat = await chats.findOne({ "chat_id": chatid });
+    return chat !== null; // Returns true if chat exists, false otherwise
 }
 
 async function add_chat(chatid, name) {
