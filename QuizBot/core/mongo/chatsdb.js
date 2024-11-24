@@ -32,9 +32,27 @@ async function get_all_chats() {
 }
 
 
+async function remove_chat(chatId) {
+    try {
+        const result = await users.deleteOne({ _id: chatId });
+        if (result.deletedCount === 1) {
+            console.log("Chat removed successfully");
+            return true;
+        } else {
+            console.log("No chat found with the specified ID");
+            return false;
+        }
+    } catch (error) {
+        console.error("Error removing chat:", error);
+        throw error;
+    }
+}
+
+
 module.exports = {
     add_chats,
-    get_all_chats
+    get_all_chats,
+    remove_chat
 };
 
 
