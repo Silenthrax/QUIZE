@@ -33,7 +33,7 @@ Easily deploy the Quiz Bot using **Heroku** for smooth hosting and scalability.
 
 If you'd like an advanced, custom Quiz Bot tailored to your needs, feel free to contact me on:  
 [![Telegram Icon](https://img.icons8.com/fluency/18/telegram-app.png)](https://telegram.dog/SoonNewUsername) **Telegram**  
-[![Gmail Icon](https://img.icons8.com/color/18/gmail.png)](sumityadav2434563@gmail.com) **Gmail**
+[![Gmail Icon](https://img.icons8.com/color/18/gmail.png)](mailto:sumityadav2434563@gmail.com) **Gmail**
 
 ---
 
