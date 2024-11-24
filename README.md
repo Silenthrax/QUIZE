@@ -16,10 +16,10 @@ I am **Quiz Bot**. I'm here to help you create and organize quizzes effortlessly
 Here are all the commands related to the Quiz Bot:
 
 → `/addquiz` : Add quizzes one by one.  
-→ **/multiquiz** : Send a file with quizzes, reply with this command, and multiple quizzes will be created.  
-→ **/myquiz** : View all the quizzes you have created.  
-→ **/stats** : Check user and chat statistics using this command.  
-→ **/broadcast** : Broadcast messages to all users or chats using this command.
+→ `/multiquiz` : Send a file with quizzes, reply with this command, and multiple quizzes will be created.  
+→ `/myquiz` : View all the quizzes you have created.  
+→ `/stats` : Check user and chat statistics using this command.  
+→ `/broadcast` : Broadcast messages to all users or chats using this command.
 
 ---
 
