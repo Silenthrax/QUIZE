@@ -32,9 +32,28 @@ async function get_all_users() {
 }
 
 
+async function remove_user(userID) {
+    try {
+        const result = await users.deleteOne({ _id: userId });
+        if (result.deletedCount === 1) {
+            console.log("user removed successfully");
+            return true;
+        } else {
+            console.log("No user found with the specified ID");
+            return false;
+        }
+    } catch (error) {
+        console.error("Error removing user:", error);
+        throw error;
+    }
+}
+
+
+
 module.exports = {
     add_users,
-    get_all_users
+    get_all_users,
+    remove_user
 };
 
 
