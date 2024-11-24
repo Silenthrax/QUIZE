@@ -50,7 +50,8 @@ bot.command("start", async (ctx) => {
 
 bot.action('tools_', async (ctx) => {
   await ctx.editMessageText(TOOLS_TEXT.English,
-  { reply_markup: toolsMarkup });
+  { parse_mode: "HTML",
+   reply_markup: toolsMarkup });
 });
 
 bot.action('languages_', async (ctx) => {
