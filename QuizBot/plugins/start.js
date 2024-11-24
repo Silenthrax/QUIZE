@@ -1,8 +1,8 @@
 const bot = require("../index");
 const { START_TEXT, TOOLS_TEXT, ABOUT_TEXT } = require("../core/formats");
 const { add_lang, get_lang } = require("../core/mongo/langsdb");
-const { add_users } = require("../core/mongo/usersdb");
-const { add_chats } = require("../core/mongo/chatsdb");
+const { add_user } = require("../core/mongo/usersdb");
+const { add_chat } = require("../core/mongo/chatsdb");
 
 
 
@@ -42,7 +42,7 @@ bot.command("start", async (ctx) => {
     const name = ctx.from.first_name || "there"; 
     const user_id = ctx.from.id;
     const chat_id = ctx.message.chat.id
-    await add_users(user_id);
+    await add_user(user_id);
     let langs = await get_lang(user_id);
 
     if (!langs) {
@@ -57,7 +57,7 @@ bot.command("start", async (ctx) => {
         reply_markup: replyMarkup,
       });
     } else {
-      await add_chats(chat_id);
+      await add_chat(chat_id);
       await ctx.reply("I am alive 😜.");
     }
   } catch (error) {
