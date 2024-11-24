@@ -12,10 +12,46 @@ const START_TEXT = {
 // ---------------- Tools Text ---------------- //
 
 const TOOLS_TEXT = {
-  "English": "⚙️ Tools Text",
-  "Hindi": "",
-  "Chinese": "",
-  "Russian": ""
+  "English": `⚙️ Quiz Tools
+
+→ <code>/addquiz</code> : Add quizzes one by one.
+→ <code>/multiquiz</code> : Send a file with the quizzes, reply with this command, and multiple quizzes will be created.
+→ <code>/myquiz</code> : View all the quizzes you have created.
+→ <code>/stats</code> : Check user and chat statistics using this command.
+→ <code>/broadcast</code> : Broadcast messages to all users or chats using this command.
+
+<i>You will be able to use all these commands in the bot.</i>
+`,
+  "Hindi": `⚙️ क्विज़ टूल्स
+
+→ <code>/addquiz</code> : एक-एक करके क्विज़ जोड़ें।
+→ <code>/multiquiz</code> : क्विज़ के साथ एक फ़ाइल भेजें, इस कमांड का उत्तर दें, और कई क्विज़ बनाए जाएंगे।
+→ <code>/myquiz</code> : आपने जो भी क्विज़ बनाए हैं उन्हें देखें।
+→ <code>/stats</code> : इस कमांड का उपयोग करके उपयोगकर्ता और चैट आँकड़े जांचें।
+→ <code>/broadcast</code> : सभी उपयोगकर्ताओं या चैट्स को संदेश प्रसारित करें।
+
+<i>आप इन सभी कमांड्स को बॉट में उपयोग कर सकेंगे।</i>
+`,
+  "Chinese": `⚙️ 测验工具
+
+→ <code>/addquiz</code> : 一次添加一个测验。
+→ <code>/multiquiz</code> : 发送包含测验的文件，回复此命令，将创建多个测验。
+→ <code>/myquiz</code> : 查看您创建的所有测验。
+→ <code>/stats</code> : 使用此命令检查用户和聊天统计数据。
+→ <code>/broadcast</code> : 使用此命令向所有用户或聊天广播消息。
+
+<i>您将能够在机器人中使用所有这些命令。</i>
+`,
+  "Russian": `⚙️ Инструменты для викторин
+
+→ <code>/addquiz</code> : Добавляйте викторины по одной.
+→ <code>/multiquiz</code> : Отправьте файл с викторинами, ответьте этой командой, и будет создано несколько викторин.
+→ <code>/myquiz</code> : Просмотрите все викторины, которые вы создали.
+→ <code>/stats</code> : Используйте эту команду, чтобы проверить статистику пользователей и чатов.
+→ <code>/broadcast</code> : Рассылайте сообщения всем пользователям или чатам с помощью этой команды.
+
+<i>Вы сможете использовать все эти команды в боте.</i>
+`
 };
 
 
