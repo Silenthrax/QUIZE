@@ -1,7 +1,7 @@
 const { MongoClient } = require("mongodb");
-const { configs } = require("../../../config");
+const { MONGO_DB } = require("../../../config");
 
-const client = new MongoClient(configs.MONGO_DB);
+const client = new MongoClient(MONGO_DB);
 
 db = client.db("QuizBot");
 users = db.collection("users");
