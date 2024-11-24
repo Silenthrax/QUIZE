@@ -8,19 +8,19 @@ const users = db.collection("users");
 
 async function add_user(user) {
     try {
-        if (typeof user._id !== "string" && typeof user._id !== "number") {
-            console.error("Invalid user._id format. Must be a string or number.");
+        if (typeof user.user_id !== "string" && typeof user.user_id !== "number") {
+            console.error("Invalid user.user_id format. Must be a string or number.");
             return null;
         }
 
-        const existingUser = await users.findOne({ _id: user._id });
+        const existingUser = await users.findOne({ user_id: user.user_id });
         if (existingUser) {
             console.log("User already exists. Skipping insertion.");
             return null;
         }
 
         const userWithId = {
-            _id: user._id.toString(),
+            user_id: user.user_id.toString(),
             ...user,
         };
 
@@ -44,14 +44,14 @@ async function get_all_users() {
     }
 }
 
-async function remove_user(userId) {
+async function remove_user(user_id) {
     try {
-        const result = await users.deleteOne({ _id: userId });
+        const result = await users.deleteOne({ user_id: user_id });
         if (result.deletedCount === 1) {
             console.log("User removed successfully");
             return true;
         } else {
-            console.log("No user found with the specified ID");
+            console.log("No user found with the specified user_id");
             return false;
         }
     } catch (error) {
@@ -65,5 +65,6 @@ module.exports = {
     get_all_users,
     remove_user,
 };
+
 
 
