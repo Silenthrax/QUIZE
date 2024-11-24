@@ -14,7 +14,7 @@ const TryAgainMarkup = {
 
 // -------------- Add Quizzes Function ------------- //
 
-const addquiz = async (ctx) => {
+async function addquiz(ctx){
   try {
     const msg = ctx.message.text.split("/addquiz ")[1];
     if (!msg || msg.trim() === "") {
