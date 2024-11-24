@@ -1,16 +1,21 @@
 const { MongoClient } = require("mongodb");
-const { MONGO_DB } = require('../../../config');
-
+const { MONGO_DB } = require("../../../config");
 
 const client = new MongoClient(MONGO_DB);
 
-db = client.db("QuizBot");
-chats = db.collection("chats");
+const db = client.db("QuizBot");
+const chats = db.collection("chats");
 
 
 
-async function add_chats(chat) {
+async function add_chat(chat) {
     try {
+        const existingChat = await chats.findOne({ _id: chat._id });
+        if (existingChat) {
+            console.log("Chat already exists. Skipping insertion.");
+            return null;
+        }
+
         const result = await chats.insertOne(chat);
         console.log("Chat added successfully:", result.insertedId);
         return result.insertedId;
@@ -20,11 +25,10 @@ async function add_chats(chat) {
     }
 }
 
-
 async function get_all_chats() {
     try {
         const allChats = await chats.find({}).toArray();
-        console.log("Chats retrieved successfully allChats");
+        console.log("Chats retrieved successfully:", allChats.length);
         return allChats;
     } catch (error) {
         console.error("Error retrieving chats:", error);
@@ -32,10 +36,9 @@ async function get_all_chats() {
     }
 }
 
-
 async function remove_chat(chatId) {
     try {
-        const result = await users.deleteOne({ _id: chatId });
+        const result = await chats.deleteOne({ _id: chatId });
         if (result.deletedCount === 1) {
             console.log("Chat removed successfully");
             return true;
@@ -49,13 +52,11 @@ async function remove_chat(chatId) {
     }
 }
 
-
 module.exports = {
-    add_chats,
+    add_chat,
     get_all_chats,
-    remove_chat
+    remove_chat,
 };
-
 
 
 
