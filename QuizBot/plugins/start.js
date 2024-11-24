@@ -38,10 +38,9 @@ bot.command("start", async (ctx) => {
     let name = ctx.from.first_name || "there"; 
     let user_id = ctx.from.id
     let langs = await get_lang(user_id)
-    if(langs){
-      console.log("not a single lang selected. ");
-    }else{
-      await add_lang(user_id, "English")
+    if (!langs) {
+      await add_lang(user_id, "English");
+      langs = await get_lang(user_id);
     }
     await ctx.reply(START_TEXT.langs.replace("{}",name),
       { reply_markup: replyMarkup }
@@ -51,8 +50,6 @@ bot.command("start", async (ctx) => {
     await ctx.reply("Oops! Something went wrong. Please try again later."); 
   }
 });
-
-
 
 
 // ----------- Buttons Actions -------------- //
