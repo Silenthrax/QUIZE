@@ -32,6 +32,7 @@ const toolsMarkup = {
 };
 
 
+
 // ------------- Start Command ------------- //
 bot.command("start", async (ctx) => {
   try {
@@ -41,7 +42,7 @@ bot.command("start", async (ctx) => {
 
     if (!langs) {
       await add_lang(user_id, "English");
-      langs = await get_lang(user_id);
+      langs = "English";
     }
 
     let startText = START_TEXT[langs];
@@ -59,47 +60,56 @@ bot.command("start", async (ctx) => {
 });
 
 
+
 // ----------- Buttons Actions -------------- //
 
 bot.action('tools_', async (ctx) => {
-  let user_id = ctx.from.id
-  let langs = await get_lang(user_id)
-  await ctx.editMessageText(TOOLS_TEXT.langs,
-  { parse_mode: "HTML",
-   reply_markup: toolsMarkup });
+  let user_id = ctx.from.id;
+  let langs = await get_lang(user_id);
+  let toolsText = TOOLS_TEXT[langs] || TOOLS_TEXT['English']; // Default to English if no translation
+  await ctx.editMessageText(toolsText, {
+    parse_mode: "HTML",
+    reply_markup: toolsMarkup,
+  });
 });
 
 bot.action('languages_', async (ctx) => {
-  await ctx.editMessageText("Select Your Preferred Languages.",
-    { reply_markup: langMarkup });
+  await ctx.editMessageText("Select Your Preferred Language.", {
+    reply_markup: langMarkup,
+  });
 });
 
 bot.action("start_", async (ctx) => {
   try {
     let name = ctx.from.first_name || "there"; 
-    let user_id = ctx.from.id
-    let langs = await get_lang(user_id)
-    await ctx.editMessageText(START_TEXT.langs.replace("{}",name),
-      { reply_markup: replyMarkup }
-    );
+    let user_id = ctx.from.id;
+    let langs = await get_lang(user_id);
+    let startText = START_TEXT[langs] || START_TEXT['English']; // Default to English if no translation
+    await ctx.editMessageText(startText.replace("{}", name), {
+      reply_markup: replyMarkup,
+    });
   } catch (error) {
     console.error("Error in the start command:", error.message);
-    await ctx.reply("Oops! Something went wrong. Please try again later."); 
+    await ctx.reply("Oops! Something went wrong. Please try again later.");
   }
 });
 
 
 bot.action("about_", async (ctx) => {
-  let user_id = ctx.from.id
-  let langs = await get_lang(user_id)
-  await ctx.editMessageText(ABOUT_TEXT.langs,{
+  let user_id = ctx.from.id;
+  let langs = await get_lang(user_id);
+  let aboutText = ABOUT_TEXT[langs] || ABOUT_TEXT['English']; // Default to English if no translation
+  await ctx.editMessageText(aboutText, {
     parse_mode: "HTML",
-    reply_markup: {inline_keyboard: [
-    [
-      { text: "⛪ Home", callback_data: "start_" },
-      { text: "🔙 Back", callback_data: "tools_" },
-    ]
-        ]}});
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: "⛪ Home", callback_data: "start_" },
+          { text: "🔙 Back", callback_data: "tools_" },
+        ]
+      ]
+    }
+  });
 });
 
 bot.action("maintainer_", async (ctx) => {
@@ -110,34 +120,30 @@ bot.action("maintainer_", async (ctx) => {
 // ------------- Multi Lang ------------- //
 
 bot.action("English_", async (ctx) => {
-  let user_id = ctx.from.id
-  await add_lang(user_id, "English")
-  await ctx.answerCbQuery("Hey Babe:), You selected English language.");
+  let user_id = ctx.from.id;
+  await add_lang(user_id, "English");
+  await ctx.answerCbQuery("You selected English language.");
 });
 
 bot.action("Hindi_", async (ctx) => {
-  let user_id = ctx.from.id
-  await add_lang(user_id, "Hindi")
-  await ctx.answerCbQuery("Hey Babe:), You selected Hindi language.");
+  let user_id = ctx.from.id;
+  await add_lang(user_id, "Hindi");
+  await ctx.answerCbQuery("You selected Hindi language.");
 });
 
 bot.action("Chinese_", async (ctx) => {
-  let user_id = ctx.from.id
-  await add_lang(user_id, "Chinese")
-  await ctx.answerCbQuery("Hey Babe:), You selected Chinese language.");
+  let user_id = ctx.from.id;
+  await add_lang(user_id, "Chinese");
+  await ctx.answerCbQuery("You selected Chinese language.");
 });
 
 bot.action("Russian_", async (ctx) => {
-  let user_id = ctx.from.id
-  await add_lang(user_id, "Russian")
-  await ctx.answerCbQuery("Hey Babe:), You selected Russian language.");
+  let user_id = ctx.from.id;
+  await add_lang(user_id, "Russian");
+  await ctx.answerCbQuery("You selected Russian language.");
 });
 
 // -------------------------------------- //
-
-
-
-
 
 
 
