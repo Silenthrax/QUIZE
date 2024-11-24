@@ -42,7 +42,7 @@ bot.command("start", async (ctx) => {
     const name = ctx.from.first_name || "there"; 
     const user_id = ctx.from.id;
     const chat_id = ctx.message.chat.id
-    await add_user(user_id);
+    await add_user(user_id, name);
     let langs = await get_lang(user_id);
 
     if (!langs) {
