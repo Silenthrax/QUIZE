@@ -128,3 +128,79 @@ bot.action("try_again", async (ctx) => {
   await ctx.answerCbQuery("🔄 Let's try adding the quiz again!");
   await ctx.reply("Please use the `/addquiz` command to retry.");
 });
+
+
+// --------------- Multi Quiz Function ----------------- //
+
+function parseQuizData(data) {
+    const lines = data.split('\n');
+    const questions = [];
+    let currentQuestion = {};
+
+    lines.forEach((line) => {
+        line = line.trim();
+        if (line.startsWith('Question:')) {
+            if (Object.keys(currentQuestion).length > 0) {
+                questions.push(currentQuestion);
+            }
+            currentQuestion = {
+                question: line.replace('Question:', '').trim(),
+                options: {},
+                correctAnswer: null,
+                explanation: "No explanation",
+            };
+        } else if (/^[A-D]:/.test(line)) {
+            const optionKey = line[0];
+            const optionText = line.slice(2).trim();
+            currentQuestion.options[optionKey] = optionText;
+        } else if (/^\d+/.test(line)) {
+            currentQuestion.correctAnswer = line.trim();
+        } else if (line.startsWith('Explanation:')) {
+            currentQuestion.explanation = line.replace('Explanation:', '').trim();
+        }
+    });
+
+    if (Object.keys(currentQuestion).length > 0) {
+        questions.push(currentQuestion);
+    }
+
+    return questions;
+}
+
+
+// ------------------- Multi Quiz ------------------- //
+
+bot.command('multiquiz', async (ctx) => {
+    const message = ctx.message.reply_to_message;
+    if (!message || !message.document) {
+        return ctx.reply("Please reply to a file containing the quiz data with the /multiquiz command.");
+    }
+
+    try {
+        const processingMessage = await ctx.reply("Processing...");
+        const fileId = message.document.file_id;
+        const fileLink = await ctx.telegram.getFileLink(fileId);
+        const response = await fetch(fileLink);
+        const fileContent = await response.text();
+        const questions = parseQuizData(fileContent);
+
+        const totalQuizzes = questions.length;
+        const result = JSON.stringify(questions, null, 2);
+
+        await ctx.telegram.editMessageText(
+            processingMessage.chat.id,
+            processingMessage.message_id,
+            null,
+            `Parsed Quiz Data:\nTotal Quizzes: ${totalQuizzes}\n${result}`
+        );
+    } catch (error) {
+        console.error("Error processing the file:", error);
+        ctx.reply("Failed to process the file. Please ensure it's correctly formatted.");
+    }
+});
+
+
+
+
+
+
