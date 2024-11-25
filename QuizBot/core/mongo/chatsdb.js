@@ -35,16 +35,24 @@ async function find_chat(chatid) {
     }
 }
 
+/*
 async function get_total_chats() {
     const total_chats = await chats.countDocuments({});
     console.log("Total chats in the database:", total_chats);
     return total_chats;
 }
+*/
+
+async function get_total_chats() {
+    const chatIds = await chats.find({}, { projection: { chat_id: 1, _id: 0 } }).toArray();
+    const chatIdList = chatIds.map(chat => chat.chat_id); // Extract only the chat_id values
+    console.log("List of chat IDs:", chatIdList);
+    return chatIdList;
+}
 
 module.exports = {
     add_chat,
-    get_total_chats,
-    find_chat
+    get_total_chats
 };
 
 
