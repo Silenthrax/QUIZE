@@ -1,8 +1,7 @@
 const bot = require("../index");
+const { Owner } = require("../../config")
 const { get_total_users } = require("../core/mongo/usersdb");
 const { get_total_chats } = require("../core/mongo/chatsdb");
-
-const Owner = 6107581019;
 
 
 bot.command("stats", async (ctx) => {
@@ -10,7 +9,7 @@ bot.command("stats", async (ctx) => {
     const chats = await get_total_chats();
 
     try {
-        if (ctx.message.from.id === Owner) {           
+        if (ctx.message.from.id in Owner) {           
             const botInfo = await bot.telegram.getMe();
             const botName = botInfo.first_name;
 
