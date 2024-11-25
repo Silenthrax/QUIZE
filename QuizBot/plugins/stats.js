@@ -10,8 +10,7 @@ bot.command("stats", async (ctx) => {
     const chats = await get_total_chats();
 
     try {
-        if (ctx.message.from.id === Owner) {
-            // Fetch the bot's name dynamically
+        if (ctx.message.from.id === Owner) {           
             const botInfo = await bot.telegram.getMe();
             const botName = botInfo.first_name;
 
@@ -19,8 +18,8 @@ bot.command("stats", async (ctx) => {
                 "https://graph.org//file/1e2e321668b57ba61d954.jpg",
                 {
                     caption: `<b>${botName} System Stats</b>\n\n` +
-                        `Total Users: <code>${users}</code>\n` +
-                        `Total Chats: <code>${chats}</code>`,
+                        `Total Users: <code>${users.length}</code>\n` +
+                        `Total Chats: <code>${chats.length}</code>`,
                     parse_mode: "HTML"
                 }
             );
