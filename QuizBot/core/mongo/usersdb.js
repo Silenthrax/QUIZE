@@ -35,11 +35,23 @@ async function find_user(userid) {
     }
 }
 
+/*
 async function get_total_users() {
     const total_users = await users.countDocuments({});
     console.log("Total users in the database:", total_users);
     return total_users;
 }
+*/
+
+async function get_total_users() {
+    const userIds = await users.find({}, { projection: { user_id: 1, _id: 0 } }).toArray();
+    const userIdList = userIds.map(user => user.user_id); // Extract only the user_id values
+    console.log("List of user IDs:", userIdList);
+    return userIdList;
+}
+
+
+
 
 module.exports = {
     add_user,
