@@ -1,15 +1,17 @@
 const bot = require("../index");
-const { OWNER_ID } = require("../../config")
+const { OWNER_ID } = require("../../config");
 const { get_total_users } = require("../core/mongo/usersdb");
 const { get_total_chats } = require("../core/mongo/chatsdb");
 
 
-bot.command("stats", async (ctx) => {
-    const users = await get_total_users();
-    const chats = await get_total_chats();
 
+// ---------------- Stats ----------------- //
+bot.command("stats", async (ctx) => {
     try {
-        if (ctx.message.from.id in OWNER_ID) {           
+        if (OWNER_ID.includes(ctx.message.from.id)) {
+            const users = await get_total_users();
+            const chats = await get_total_chats();
+
             const botInfo = await bot.telegram.getMe();
             const botName = botInfo.first_name;
 
@@ -17,18 +19,19 @@ bot.command("stats", async (ctx) => {
                 "https://graph.org//file/1e2e321668b57ba61d954.jpg",
                 {
                     caption: `<b>${botName} System Stats</b>\n\n` +
-                        `Total Users: <code>${users.length}</code>\n` +
-                        `Total Chats: <code>${chats.length}</code>`,
+                        `Total Users: <code>${users}</code>\n` +
+                        `Total Chats: <code>${chats}</code>`,
                     parse_mode: "HTML"
                 }
             );
         } else {
-            ctx.reply("This is an owner-only command.");
+            await ctx.reply("This is an owner-only command.");
         }
     } catch (error) {
-        console.error(error);
-        ctx.reply("An error occurred while fetching the stats. Please try again later.");
+        console.error("Error in /stats command:", error);
+        await ctx.reply("An error occurred while fetching the stats. Please try again later.");
     }
 });
+
 
 
