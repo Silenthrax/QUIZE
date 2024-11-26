@@ -83,7 +83,6 @@ bot.command("broadcast", async (ctx) => {
         );
       }
 
-      // Determine the message to broadcast
       const message = reply ? (reply.text || reply.caption) : args;
 
       const buttons = Markup.inlineKeyboard([
@@ -110,8 +109,7 @@ bot.command("broadcast", async (ctx) => {
 });
 
 
-
-
+// --------------- Actions ----------------- //
 bot.action(/action_broadcast:(.+)/, async (ctx) => {
   try {
     const message = ctx.match[1];
@@ -145,6 +143,8 @@ bot.action(/action_forward:(.*)/, async (ctx) => {
     await ctx.answerCbQuery("Failed to execute forward.");
   }
 });
+
+
 
 
 
