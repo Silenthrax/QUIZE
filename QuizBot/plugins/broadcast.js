@@ -73,11 +73,9 @@ Forward Message Summary:
 bot.command("broadcast", async (ctx) => {
   try {
     if (OWNER_ID.includes(ctx.message.from.id)) {
-      const users = await get_total_users();
-      const chats = await get_total_chats();
       const reply = ctx.message.reply_to_message;
       const args = ctx.message.text.split(" ").slice(1).join(" ");
-
+      
       if (!reply && !args) {
         return ctx.reply(
           "Please reply to a message or provide a message to broadcast.\nUsage: /broadcast <message>",
@@ -85,11 +83,12 @@ bot.command("broadcast", async (ctx) => {
         );
       }
 
-      const message = reply ? reply.text || reply.caption : args;
+      // Determine the message to broadcast
+      const message = reply ? (reply.text || reply.caption) : args;
 
       const buttons = Markup.inlineKeyboard([
-        [Markup.button.callback("📢 Broadcast", "action_broadcast")],
-        [Markup.button.callback("🔄 Forward", "action_forward")],
+        [Markup.button.callback("📢 Broadcast", `action_broadcast:${message}`)],
+        [Markup.button.callback("🔄 Forward", `action_forward:${reply ? reply.message_id : ''}`)],
       ]);
 
       return ctx.reply(
@@ -111,14 +110,13 @@ bot.command("broadcast", async (ctx) => {
 });
 
 
-// ---------------- Actions ---------------- //
-bot.action("action_broadcast", async (ctx) => {
+
+
+bot.action(/action_broadcast:(.+)/, async (ctx) => {
   try {
+    const message = ctx.match[1];
     const users = await get_total_users();
     const chats = await get_total_chats();
-    const reply = ctx.callbackQuery.message.reply_to_message;
-    const args = ctx.callbackQuery.message.text.split(" ").slice(1).join(" ");
-    const message = reply ? reply.text || reply.caption : args;
 
     const summary = await broadcast(ctx, message, users, chats);
     await ctx.reply(summary);
@@ -129,15 +127,17 @@ bot.action("action_broadcast", async (ctx) => {
   }
 });
 
-bot.action("action_forward", async (ctx) => {
+bot.action(/action_forward:(.*)/, async (ctx) => {
   try {
+    const message_id = ctx.match[1];
+    if (!message_id) {
+      return ctx.answerCbQuery("Please reply to a message to forward.");
+    }
+
     const users = await get_total_users();
     const chats = await get_total_chats();
-    const reply = ctx.callbackQuery.message.reply_to_message;
-    if (!reply) return ctx.answerCbQuery("Please reply to a message to forward.");
-
-    const message_id = reply.message_id;
     const summary = await forwardMessage(ctx, message_id, users, chats);
+
     await ctx.reply(summary);
     await ctx.answerCbQuery("Forward executed successfully!");
   } catch (error) {
@@ -145,7 +145,6 @@ bot.action("action_forward", async (ctx) => {
     await ctx.answerCbQuery("Failed to execute forward.");
   }
 });
-
 
 
 
