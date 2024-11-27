@@ -1,4 +1,5 @@
 const bot = require("../index");
+const { addQuiz } = require("../core/mongo/quizesdb");
 
 
 // --------------- Multi Quiz Function ----------------- //
@@ -62,12 +63,14 @@ bot.command('multiquiz', async (ctx) => {
 
         const totalQuizzes = questions.length;
         const result = JSON.stringify(questions, null, 2);
+        const user_id = ctx.message.from.id
+        await AddQuiz(user_id, result)
 
         await ctx.telegram.editMessageText(
             processingMessage.chat.id,
             processingMessage.message_id,
             null,
-            `Parsed Quiz Data:\nTotal Quizzes: ${totalQuizzes}\n${result}`
+            `🎉 Quiz Data Saved Successfully:\nTotal Quizzes: ${totalQuizzes}`
         );
     } catch (error) {
         console.error("Error processing the file:", error);
