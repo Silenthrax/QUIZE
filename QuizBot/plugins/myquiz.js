@@ -55,24 +55,26 @@ async function pollUploader(ctx, user_id, name) {
     console.log(`Quiz Name: ${name}`);
     console.log(quizData);
 
-    if (!Array.isArray(quizData) || quizData.length === 0) {
-      await ctx.reply("Bruh, Quiz Not Found!!");
-      return;
-    }
+    
 
     for (const quiz of quizData) {
-      if (typeof quiz !== "object" || !quiz.question || typeof quiz.options !== "object") {
+      if (
+        typeof quiz !== "object" || 
+        !quiz.question || 
+        typeof quiz.options !== "object" || 
+        Object.keys(quiz.options).length < 2
+      ) {
         console.error("Invalid question or options format:", JSON.stringify(quiz));
         await ctx.reply("Error: Invalid question or options format. Please check the quiz data.");
         continue;
       }
 
       const question = quiz.question;
-      const options = Object.values(quiz.options);
+      const options = ["A", "B", "C", "D"].map(key => quiz.options[key]).filter(Boolean);
 
       if (options.length < 2) {
         console.error("Insufficient options:", options);
-        await ctx.reply(`Error: At least two options are required for question "${question}".`);
+        await ctx.reply(`Error: At least two valid options are required for question "${question}".`);
         continue;
       }
 
@@ -99,28 +101,6 @@ async function pollUploader(ctx, user_id, name) {
   }
 }
 
-bot.on("poll_answer", async (pollAnswerCtx) => {
-  const userId = pollAnswerCtx.user.id;
-  const userName = `${pollAnswerCtx.user.first_name} ${pollAnswerCtx.user.last_name || ""}`.trim();
-  const answerIndex = pollAnswerCtx.option_ids[0];
-  const pollId = pollAnswerCtx.poll_id;
-
-  if (!userResponses[userId]) {
-    userResponses[userId] = { name: userName, correct: 0, wrong: 0, total: 0 };
-  }
-
-  const userScore = userResponses[userId];
-  userScore.total++;
-
-  const correctIndex = quizData.find((q) => q.pollId === pollId)?.correctAnswer - 1;
-
-  if (answerIndex === correctIndex) {
-    userScore.correct++;
-  } else {
-    userScore.wrong++;
-  }
-});
-
 async function summarizeResults(ctx) {
   let summary = "🏆 **Quiz Leaderboard** 🏆\n\n";
   let totalParticipants = Object.keys(userResponses).length;
@@ -136,6 +116,5 @@ async function summarizeResults(ctx) {
 }
 
 module.exports = { pollUploader };
-
 
 
