@@ -45,16 +45,14 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 
 
+// ------------- Poll Uploader ---------------- //
 
-
-
-const userResponses = {}; // Store user responses and scores
+const userResponses = {};
 
 async function pollUploader(ctx, user_id, name) {
   try {    
     const quizData = await getQuiz(user_id, name);
-    console.log(name)
-    console.log(quizData)
+    console.log(`Quiz Name: ${name}`)    
 
     if (!quizData || quizData.length === 0) {
       await ctx.reply("Bruh, Quiz Not Found!!");
@@ -65,16 +63,15 @@ async function pollUploader(ctx, user_id, name) {
       const question = quiz.question;
       const options = Object.values(quiz.options);
       const correctIndex = quiz.correctAnswer - 1;
-
-      // Send the poll
+    
       const pollMessage = await ctx.sendPoll(question, options, {
         type: "quiz",
         correct_option_id: correctIndex,
         is_anonymous: false,
-        explanation: quiz.explanation || "No explanation provided",
+        explanation: quiz.explanation || "",
       });
 
-      // Track responses when users answer
+      
       bot.on("poll_answer", async (pollAnswerCtx) => {
         const userId = pollAnswerCtx.user.id;
         const userName = `${pollAnswerCtx.user.first_name} ${pollAnswerCtx.user.last_name || ""}`.trim();
@@ -123,6 +120,7 @@ async function summarizeResults(ctx) {
 
   await ctx.replyWithMarkdown(summary);
 }
+
 
 module.exports = { pollUploader };
 
