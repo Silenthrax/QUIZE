@@ -47,18 +47,18 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 // ------------- Poll Uploader ---------------- //
 
+const userResponses = {};
+
 async function pollUploader(ctx, user_id, name) {
   try {
-    const quizDataRaw = await getQuiz(user_id, name); 
+    const quizDataRaw = await getQuiz(user_id, name);
     const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
     
     console.log(`Quiz Name: ${name}`);
-    console.log(`Quiz Data:`, quizData);
-    ctx.reply(`Total Questions: ${quizData.length}\nFirst Question: ${JSON.stringify(quizData[0], null, 2)}`);
     
     for (let i = 0; i < quizData.length; i++) {
       const quiz = quizData[i];
-      const question = quiz.question || "Demo";    
+      const question = quiz.question || "Demo";
       const options = Object.values(quiz.options) || [1, 2, 3, 4];
       const correctIndex = quiz.correctAnswer || 3;
       const explanation = quiz.explanation || "";
@@ -69,16 +69,52 @@ async function pollUploader(ctx, user_id, name) {
         continue;
       }
 
-      await ctx.sendPoll(question, options, {
+      const pollMessage = await ctx.sendPoll(question, options, {
         type: "quiz",
         correct_option_id: correctIndex,
         is_anonymous: false,
         explanation: explanation,
       });
 
-      console.log(`Waiting for 60 seconds before sending the next poll...`);
-      await new Promise((resolve) => setTimeout(resolve, 60000)); // 60 seconds delay
+      // Collect user responses
+      ctx.on("poll_answer", (pollAnswer) => {
+        const { user, option_ids } = pollAnswer;
+        const userId = user.id;
+        const correct = option_ids.includes(correctIndex);
+
+        if (!userResponses[userId]) {
+          userResponses[userId] = { name: user.first_name, correct: 0, wrong: 0 };
+        }
+
+        if (correct) {
+          userResponses[userId].correct += 1;
+        } else {
+          userResponses[userId].wrong += 1;
+        }
+      });
+
+      console.log(`Waiting for 15 seconds before sending the next poll...`);
+      await new Promise((resolve) => setTimeout(resolve, 15000)); // 15 seconds delay
     }
+
+    // Display results after all polls
+    const sortedResults = Object.values(userResponses).sort((a, b) => b.correct - a.correct);
+    let resultsMessage = "Quiz Results:\n\n";
+
+    sortedResults.forEach((user, index) => {
+      resultsMessage += `${index + 1}. ${user.name} - Correct: ${user.correct}, Wrong: ${user.wrong}\n`;
+    });
+
+    if (resultsMessage.length > 4096) {
+      // Send as a document if too long
+      const filePath = "/mnt/data/quiz_results.txt";
+      const fs = require("fs");
+      fs.writeFileSync(filePath, resultsMessage);
+      await ctx.replyWithDocument({ source: filePath, filename: "quiz_results.txt" });
+    } else {
+      await ctx.reply(resultsMessage);
+    }
+
   } catch (error) {
     console.error("Error uploading poll:", error);
     await ctx.reply("Failed to upload the poll. Please try again.");
