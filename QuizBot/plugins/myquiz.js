@@ -93,10 +93,47 @@ async function getUserAnswer() {
 
 
 bot.command("myquiz", async (ctx) => {
-  const user_id = ctx.message.from.id
+  const user_id = ctx.message.from.id;
   const allquizNames = await getAllQuizNames(user_id);
-  await ctx.reply(allquizNames)
+
+  if (!allquizNames || allquizNames.length === 0) {
+    ctx.reply('Quiz not found.');
+    return;
+  }
+
+  let NameText = 'Here are all your Quiz Names:\n\n';
+  const botName = ctx.botInfo.username;
+
+  allquizNames.forEach((name, index) => {
+    NameText += `Quiz ${index + 1}\nhttps://t.me/${botName}?start=QuizName_${name}\n\n`;
+  });
+
+  const removeAllButton = {
+    text: 'Remove All Quizzes',
+    callback_data: 'remove_all_quizzes',
+  };
+
+  await ctx.reply(NameText, {
+    reply_markup: {
+      inline_keyboard: [
+        [removeAllButton]
+      ],
+    },
+  });
 });
+
+
+
+bot.action('remove_all_quizzes', async (ctx) => {
+  const user_id = ctx.from.id;
+  await removeAllQuizzes(user_id);
+  await ctx.answerCallbackQuery('All quizzes have been removed.');
+  await ctx.reply('All quizzes have been removed successfully!');
+});
+
+
+
+
 
 
 module.exports = { quizFunction };
