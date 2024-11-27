@@ -58,7 +58,22 @@ async function pollUploader(ctx, user_id, name) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     
     // Handle poll answers
-    bot.on("poll_answer", (pollAnswer) => {
+    
+
+    // Send quiz questions
+    for (let i = 0; i < quizData.length; i++) {
+      const quiz = quizData[i];
+      const question = quiz.question || "Demo";
+      const options = Object.values(quiz.options) || [1, 2, 3, 4];
+      const correctIndex = quiz.correctAnswer || 0;
+
+      await ctx.sendPoll(question, options, {
+        type: "quiz",
+        correct_option_id: correctIndex,
+        is_anonymous: false,
+      });
+
+      bot.on("poll_answer", (pollAnswer) => {
       try {
         const { user, option_ids } = pollAnswer;
 
@@ -86,20 +101,7 @@ async function pollUploader(ctx, user_id, name) {
         console.error("Error processing poll answer:", error);
       }
     });
-
-    // Send quiz questions
-    for (let i = 0; i < quizData.length; i++) {
-      const quiz = quizData[i];
-      const question = quiz.question || "Demo";
-      const options = Object.values(quiz.options) || [1, 2, 3, 4];
-      const correctIndex = quiz.correctAnswer || 0;
-
-      await ctx.sendPoll(question, options, {
-        type: "quiz",
-        correct_option_id: correctIndex,
-        is_anonymous: false,
-      });
-
+      
       console.log(`Waiting for 15 seconds before sending the next poll...`);
       await new Promise((resolve) => setTimeout(resolve, 15000));
     }
