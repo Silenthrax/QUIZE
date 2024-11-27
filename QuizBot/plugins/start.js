@@ -47,7 +47,7 @@ bot.command("start", async (ctx) => {
     const messageText = ctx.message.text || "";
 
     if (messageText.startsWith("/start QuizName")) {
-        const quizName = messageText.split(" ")[1];
+        const quizName = messageText.split("_")[1];
         await pollUploader(ctx, user_id, quizName);
     } else {
         await add_user(user_id, name);
