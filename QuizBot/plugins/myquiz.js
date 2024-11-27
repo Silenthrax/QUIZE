@@ -57,9 +57,9 @@ async function pollUploader(ctx, user_id, name) {
     for (let i = 0; i < quizData.length; i++) {
       
       const quiz = quizData[i];
-      const question = quiz.question;    
-      const options = Object.values(quiz.options);
-      const correctIndex = quiz.correctAnswer;
+      const question = quiz.question || "Demo";    
+      const options = Object.values(quiz.options) || [1,2,3,4];
+      const correctIndex = quiz.correctAnswer || 3;
       const explanation = quiz.explanation || "";
 
       console.log(`Question: ${questions}\nOptions: ${options}\nAnswer: ${correctIndex}\n\nExplanation: ${explanation}`)
