@@ -57,9 +57,16 @@ async function pollUploader(ctx, user_id, name) {
     await ctx.reply(`📝 **Quiz Started**: *${name}* 📚\n\nTotal Questions: ${quizData.length}. Get ready! 🎯`);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     
+    // Handle poll answers
     bot.on("poll_answer", (pollAnswer) => {
       try {
         const { user, option_ids } = pollAnswer;
+
+        if (!user || !option_ids) {
+          console.warn("Missing user or option_ids in pollAnswer.");
+          return;
+        }
+
         const userId = user.id;
 
         if (!userResponses[userId]) {
@@ -79,6 +86,7 @@ async function pollUploader(ctx, user_id, name) {
       }
     });
 
+    // Send quiz questions
     for (let i = 0; i < quizData.length; i++) {
       const quiz = quizData[i];
       const question = quiz.question || "Demo";
@@ -95,11 +103,13 @@ async function pollUploader(ctx, user_id, name) {
       await new Promise((resolve) => setTimeout(resolve, 15000));
     }
 
+    // Handle the case when no one has responded
     if (Object.keys(userResponses).length === 0) {
       await ctx.reply("📊 **No participants responded to the quiz.**");
       return;
     }
 
+    // Sort and display results
     const sortedResults = Object.values(userResponses).sort((a, b) => b.correct - a.correct);
     let resultsMessage = "🎉 **Quiz Completed Successfully!** 🎉\n\n🏆 **Results:**\n\n";
 
@@ -107,6 +117,7 @@ async function pollUploader(ctx, user_id, name) {
       resultsMessage += `**${index + 1}. ${user.name}** - ✅ Correct: ${user.correct}, ❌ Wrong: ${user.wrong}\n`;
     });
 
+    // Check if the results message exceeds the character limit
     if (resultsMessage.length > 4096) {
       const fs = require("fs");
       const filePath = "/mnt/data/quiz_results.txt";
@@ -115,7 +126,7 @@ async function pollUploader(ctx, user_id, name) {
     } else {
       await ctx.reply(resultsMessage);
     }
-    
+
     await new Promise((resolve) => setTimeout(resolve, 5000));
     await ctx.reply("🎯 **Thank you for participating!** 🥳");
 
@@ -124,7 +135,6 @@ async function pollUploader(ctx, user_id, name) {
     await ctx.reply("❌ Failed to upload the poll. Please try again.");
   }
 }
-
 
 
 
