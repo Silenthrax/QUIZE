@@ -55,6 +55,7 @@ async function pollUploader(ctx, user_id, name) {
     console.log(`Quiz Name: ${name}`);
     console.log(quizData)
     console.log(quizData.length)
+    ctx.reply(quizData)
     
     for (let i = 0; i < quizData.length; i++) {
       
