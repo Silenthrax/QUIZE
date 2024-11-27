@@ -1,5 +1,5 @@
 const bot = require("../index");
-const { addQuiz } = require("../core/mongo/quizesdb");
+const { addQuiz, getQuiz, deleteQuiz, getAllQuizNames } = require("../core/mongo/quizesdb");
 
 
 // --------------- Multi Quiz Function ----------------- //
@@ -77,6 +77,4 @@ bot.command('multiquiz', async (ctx) => {
         ctx.reply("Failed to process the file. Please ensure it's correctly formatted. " + (error.message || ""));
     }
 });
-
-
 
