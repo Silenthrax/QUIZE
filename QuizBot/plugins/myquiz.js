@@ -51,39 +51,35 @@ const userResponses = {};
 
 async function pollUploader(ctx, user_id, name) {
   try {
-    const quizData = await getQuiz(user_id, name);
+    const quizData = await getQuiz(user_id, name); // Get quiz data
     console.log(`Quiz Name: ${name}`);
     console.log(quizData);
 
-    
-
-    for (const quiz of quizData) {
-      if (
-        typeof quiz !== "object" || 
-        !quiz.question || 
-        typeof quiz.options !== "object" || 
-        Object.keys(quiz.options).length < 2
-      ) {
-        console.error("Invalid question or options format:", JSON.stringify(quiz));
-        await ctx.reply("Error: Invalid question or options format. Please check the quiz data.");
-        continue;
-      }
-
+    // Loop through each quiz in the quizData array
+    for (let i = 0; i < quizData.length; i++) {
+      const quiz = quizData[i];
       const question = quiz.question;
-      const options = ["A", "B", "C", "D"].map(key => quiz.options[key]).filter(Boolean);
+      
+      // Extract the options from the quiz and filter out invalid ones
+      const options = Object.values(quiz.option).filter(Boolean);
 
+      // Check if we have at least two valid options
       if (options.length < 2) {
         console.error("Insufficient options:", options);
         await ctx.reply(`Error: At least two valid options are required for question "${question}".`);
         continue;
       }
 
-      const correctIndex = quiz.correctAnswer - 1;
+      // Correct answer index: quiz.correctAnswer should be 1-based, so subtract 1 for 0-based indexing
+      const correctIndex = quiz.correct - 1;
+
+      // Validate that the correct answer index is within bounds
       if (correctIndex < 0 || correctIndex >= options.length) {
         await ctx.reply(`Error: Correct answer index out of bounds for question "${question}".`);
         continue;
       }
 
+      // Send poll for the current question
       await ctx.sendPoll(question, options, {
         type: "quiz",
         correct_option_id: correctIndex,
@@ -91,9 +87,12 @@ async function pollUploader(ctx, user_id, name) {
         explanation: quiz.explanation || "",
       });
 
-      await new Promise((resolve) => setTimeout(resolve, 60000));
+      // Wait for 60 seconds before sending the next poll
+      console.log(`Waiting for 60 seconds before sending the next poll...`);
+      await new Promise((resolve) => setTimeout(resolve, 60000)); // 60 seconds delay
     }
 
+    // After all the polls, summarize the results
     await summarizeResults(ctx);
   } catch (error) {
     console.error("Error uploading poll:", error);
@@ -106,8 +105,10 @@ async function summarizeResults(ctx) {
   let totalParticipants = Object.keys(userResponses).length;
   summary += `**Total Participants**: ${totalParticipants}\n\n`;
 
+  // Sort users by the number of correct answers in descending order
   const sortedUsers = Object.values(userResponses).sort((a, b) => b.correct - a.correct);
 
+  // Format leaderboard information
   sortedUsers.forEach((user, index) => {
     summary += `${index + 1}. **${user.name}**\n   - Correct: ${user.correct}\n   - Wrong: ${user.wrong}\n   - Total Answered: ${user.total}\n\n`;
   });
@@ -116,5 +117,3 @@ async function summarizeResults(ctx) {
 }
 
 module.exports = { pollUploader };
-
-
