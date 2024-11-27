@@ -77,7 +77,7 @@ async function pollUploader(ctx, user_id, name) {
         explanation: explanation,
       });
 
-      ctx.on("poll_answer", (pollAnswer) => {
+      bot.on("poll_answer", (pollAnswer) => {
         const { user, option_ids } = pollAnswer;
         const userId = user.id;
         const correct = option_ids.includes(correctIndex);
