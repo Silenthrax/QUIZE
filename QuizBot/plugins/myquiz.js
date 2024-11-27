@@ -91,6 +91,17 @@ async function getUserAnswer() {
 
 
 
+// ------------------ Buttons ------------------ //
+const removeAllMarkup = {
+  inline_keyboard: [
+    [
+      { text: "Remove All Quizzes", callback_data: "about_" }
+ 
+    ]
+  ]
+};
+
+        
 
 bot.command("myquiz", async (ctx) => {
   const user_id = ctx.message.from.id;
@@ -108,27 +119,16 @@ bot.command("myquiz", async (ctx) => {
     NameText += `Quiz ${index + 1}\nhttps://t.me/${botName}?start=QuizName_${name}\n\n`;
   });
 
-  const removeAllButton = {
-    text: 'Remove All Quizzes',
-    callback_data: 'remove_all_quizzes',
-  };
-
   await ctx.reply(NameText, {
-    reply_markup: {
-      inline_keyboard: [
-        [removeAllButton]
-      ],
-    },
-  });
+    reply_markup: removeallmarkup});
 });
-
 
 
 bot.action('remove_all_quizzes', async (ctx) => {
   const user_id = ctx.from.id;
   await removeAllQuizzes(user_id);
   await ctx.answerCallbackQuery('All quizzes have been removed.');
-  await ctx.reply('All quizzes have been removed successfully!');
+  await ctx.editMessageText('All quizzes have been removed successfully!');
 });
 
 
