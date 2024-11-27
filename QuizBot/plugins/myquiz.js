@@ -50,20 +50,20 @@ bot.action('remove_all_quizzes', async (ctx) => {
 const userResponses = {};
 
 async function pollUploader(ctx, user_id, name) {
-  try {    
+  try {
     const quizData = await getQuiz(user_id, name);
-    console.log(`Quiz Name: ${name}`);    
+    console.log(`Quiz Name: ${name}`);
     console.log(quizData);
-    
-    if (!quizData || quizData.length === 0) {
+
+    if (!Array.isArray(quizData) || quizData.length === 0) {
       await ctx.reply("Bruh, Quiz Not Found!!");
       return;
     }
 
     for (const quiz of quizData) {
-      if (!quiz.question || !quiz.options || typeof quiz.options !== 'object') {
-        console.error("Invalid question or options format:", quiz);
-        await ctx.reply("Error: Invalid question or options in the quiz data.");
+      if (typeof quiz !== "object" || !quiz.question || typeof quiz.options !== "object") {
+        console.error("Invalid question or options format:", JSON.stringify(quiz));
+        await ctx.reply("Error: Invalid question or options format. Please check the quiz data.");
         continue;
       }
 
@@ -75,13 +75,13 @@ async function pollUploader(ctx, user_id, name) {
         await ctx.reply(`Error: At least two options are required for question "${question}".`);
         continue;
       }
-      
+
       const correctIndex = quiz.correctAnswer - 1;
       if (correctIndex < 0 || correctIndex >= options.length) {
         await ctx.reply(`Error: Correct answer index out of bounds for question "${question}".`);
         continue;
       }
-    
+
       await ctx.sendPoll(question, options, {
         type: "quiz",
         correct_option_id: correctIndex,
@@ -135,7 +135,7 @@ async function summarizeResults(ctx) {
   await ctx.replyWithMarkdown(summary);
 }
 
-
 module.exports = { pollUploader };
+
 
 
