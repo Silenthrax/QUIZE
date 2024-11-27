@@ -62,6 +62,7 @@ async function pollUploader(ctx, user_id, name) {
       try {
         const { user, option_ids } = pollAnswer;
 
+        ctx.reply(pollAnswer)
         if (!user || !option_ids) {
           console.warn("Missing user or option_ids in pollAnswer.");
           return;
