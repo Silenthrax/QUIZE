@@ -45,7 +45,7 @@ bot.action('remove_all_quizzes', async (ctx) => {
 // test
 
 bot.command("viewquiz", async (ctx) => {
-  consg user_id = ctx.from.id
+  const user_id = ctx.from.id
   name = "88FIJ1-152";
   const lol = await getQuiz(user_id, name)
   await ctx.reply(lol);
