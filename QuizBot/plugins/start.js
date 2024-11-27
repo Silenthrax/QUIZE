@@ -41,31 +41,43 @@ bot.command("start", async (ctx) => {
   try {
     const name = ctx.from.first_name || "there"; 
     const user_id = ctx.from.id;
-    const chat_name = ctx.message.chat.first_name
-    const chat_id = ctx.message.chat.id
-    await add_user(user_id, name);
-    let langs = await get_lang(user_id);
-
-    if (!langs) {
-      langs = "English";
-      await add_lang(user_id, langs);
-    }
-
-    const startText = START_TEXT[langs] || START_TEXT["English"];
+    const chat_name = ctx.message.chat.first_name;
+    const chat_id = ctx.message.chat.id;
     
-    if (ctx.message.chat.type === "private") {
-      await ctx.reply(startText.replace("{}", name), {
-        reply_markup: replyMarkup,
-      });
+    const messageText = ctx.message.text || "";
+
+    if (messageText.startsWith("/start QuizName")) {
+        const quizName = messageText.split(" ")[1];
+        await quizfunction(ctx, user_id, quizName);
     } else {
-      await add_chat(chat_id, chat_name);
-      await ctx.reply("I am alive 😜.");
+        await add_user(user_id, name);
+        let langs = await get_lang(user_id);
+
+        if (!langs) {
+            langs = "English";
+            await add_lang(user_id, langs);
+        }
+
+        const startText = START_TEXT[langs] || START_TEXT["English"];
+        
+        if (ctx.message.chat.type === "private") {
+            await ctx.reply(startText.replace("{}", name), {
+                reply_markup: replyMarkup,
+            });
+        } else {
+            await add_chat(chat_id, chat_name);
+            await ctx.reply("I am alive 😜.");
+        }
     }
   } catch (error) {
     console.error("Error in the start command:", error);
     await ctx.reply("Oops! Something went wrong. Please try again later.");
   }
 });
+
+
+
+
 
 
 
