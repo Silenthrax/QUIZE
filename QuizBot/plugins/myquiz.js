@@ -51,9 +51,10 @@ bot.action('remove_all_quizzes', async (ctx) => {
 const userResponses = {}; // Store user responses and scores
 
 async function pollUploader(ctx, user_id, name) {
-  try {
-    console.log(name)
+  try {    
     const quizData = await getQuiz(user_id, name);
+    console.log(name)
+    console.log(quizData)
 
     if (!quizData || quizData.length === 0) {
       await ctx.reply("Bruh, Quiz Not Found!!");
