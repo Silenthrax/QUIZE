@@ -1,5 +1,5 @@
 const bot = require("../index");
-const { getQuiz, getAllQuizNames, removeAllQuizzes } = require("../core/mongo/quizesdb");
+const { getQuiz, getAllQuizNames, deleteAllQuizzes } = require("../core/mongo/quizesdb");
 
 
 // ------------------ Buttons ------------------ //
@@ -37,7 +37,7 @@ bot.command("myquiz", async (ctx) => {
 // ------------- Actions -------------- //
 bot.action('remove_all_quizzes', async (ctx) => {
   const user_id = ctx.from.id;
-  await removeAllQuizzes(user_id);  
+  await deleteAllQuizzes(user_id);  
   await ctx.answerCallbackQuery('All quizzes have been removed.');
   await ctx.editMessageText('All quizzes have been removed successfully!');
 });
