@@ -47,25 +47,22 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 // ------------- Poll Uploader ---------------- //
 
-const userResponses = {};
-
 async function pollUploader(ctx, user_id, name) {
   try {
-    const quizData = await getQuiz(user_id, name); 
+    const quizDataRaw = await getQuiz(user_id, name); 
+    const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
+    
     console.log(`Quiz Name: ${name}`);
-    console.log(quizData)
-    ctx.reply(`${quizData}\n\n ${quizData.length}\n${quizData[0]}`)
+    console.log(`Quiz Data:`, quizData);
+    ctx.reply(`Total Questions: ${quizData.length}\nFirst Question: ${JSON.stringify(quizData[0], null, 2)}`);
     
     for (let i = 0; i < quizData.length; i++) {
-      
       const quiz = quizData[i];
       const question = quiz.question || "Demo";    
-      const options = Object.values(quiz.options) || [1,2,3,4];
+      const options = Object.values(quiz.options) || [1, 2, 3, 4];
       const correctIndex = quiz.correctAnswer || 3;
       const explanation = quiz.explanation || "";
 
-      console.log(`Question: ${questions}\nOptions: ${options}\nAnswer: ${correctIndex}\n\nExplanation: ${explanation}`)
-      
       if (options.length < 2) {
         console.error("Insufficient options:", options);
         await ctx.reply(`Error: At least two valid options are required for question "${question}".`);
@@ -78,7 +75,7 @@ async function pollUploader(ctx, user_id, name) {
         is_anonymous: false,
         explanation: explanation,
       });
-      
+
       console.log(`Waiting for 60 seconds before sending the next poll...`);
       await new Promise((resolve) => setTimeout(resolve, 60000)); // 60 seconds delay
     }
