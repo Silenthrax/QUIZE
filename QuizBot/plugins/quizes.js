@@ -64,7 +64,7 @@ bot.command('multiquiz', async (ctx) => {
         const totalQuizzes = questions.length;
         const result = JSON.stringify(questions, null, 2);
         const user_id = ctx.message.from.id
-        await AddQuiz(user_id, result)
+        await addQuiz(user_id, result)
 
         await ctx.telegram.editMessageText(
             processingMessage.chat.id,
