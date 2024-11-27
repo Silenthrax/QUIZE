@@ -52,8 +52,8 @@ const userResponses = {};
 async function pollUploader(ctx, user_id, name) {
   try {    
     const quizData = await getQuiz(user_id, name);
-    console.log(`Quiz Name: ${name}`)    
-    console.log(quizData)
+    console.log(`Quiz Name: ${name}`);    
+    console.log(quizData);
     
     if (!quizData || quizData.length === 0) {
       await ctx.reply("Bruh, Quiz Not Found!!");
@@ -62,9 +62,26 @@ async function pollUploader(ctx, user_id, name) {
 
     for (const quiz of quizData) {
       const question = quiz.question;
+      
+      if (!quiz.options || typeof quiz.options !== 'object') {
+        console.error("Invalid options format:", quiz.options);
+        await ctx.reply(`Error: Options for question "${question}" are invalid.`);
+        continue;
+      }
+
       const options = Object.values(quiz.options);
-      console.log(options)
+      if (options.length < 2) {
+        console.error("Insufficient options:", options);
+        await ctx.reply(`Error: At least two options are required for question "${question}".`);
+        continue;
+      }
+      
       const correctIndex = quiz.correctAnswer - 1;
+
+      if (correctIndex < 0 || correctIndex >= options.length) {
+        await ctx.reply(`Error: Correct answer index out of bounds for question "${question}".`);
+        continue;
+      }
     
       const pollMessage = await ctx.sendPoll(question, options, {
         type: "quiz",
@@ -73,13 +90,11 @@ async function pollUploader(ctx, user_id, name) {
         explanation: quiz.explanation || "",
       });
 
-      
       bot.on("poll_answer", async (pollAnswerCtx) => {
         const userId = pollAnswerCtx.user.id;
         const userName = `${pollAnswerCtx.user.first_name} ${pollAnswerCtx.user.last_name || ""}`.trim();
         const answerIndex = pollAnswerCtx.option_ids[0];
 
-        // Initialize user response data if not present
         if (!userResponses[userId]) {
           userResponses[userId] = { name: userName, correct: 0, wrong: 0, total: 0 };
         }
@@ -94,11 +109,9 @@ async function pollUploader(ctx, user_id, name) {
         }
       });
 
-      // Wait for 1 minute before sending the next poll
       await new Promise((resolve) => setTimeout(resolve, 60000));
     }
 
-    // Summarize results after all polls are sent
     await summarizeResults(ctx);
   } catch (error) {
     console.error("Error uploading poll:", error);
@@ -106,14 +119,11 @@ async function pollUploader(ctx, user_id, name) {
   }
 }
 
-// Summarize the results
 async function summarizeResults(ctx) {
   let summary = "🏆 **Quiz Leaderboard** 🏆\n\n";
   let totalParticipants = Object.keys(userResponses).length;
-
   summary += `**Total Participants**: ${totalParticipants}\n\n`;
 
-  // Sort users by correct answers descending
   const sortedUsers = Object.values(userResponses).sort((a, b) => b.correct - a.correct);
 
   sortedUsers.forEach((user, index) => {
@@ -123,8 +133,6 @@ async function summarizeResults(ctx) {
   await ctx.replyWithMarkdown(summary);
 }
 
-
 module.exports = { pollUploader };
-
 
 
