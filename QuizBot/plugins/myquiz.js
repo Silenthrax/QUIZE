@@ -61,15 +61,15 @@ async function pollUploader(ctx, user_id, name) {
     }
 
     for (const quiz of quizData) {
-      const question = quiz.question;
-      
-      if (!quiz.options || typeof quiz.options !== 'object') {
-        console.error("Invalid options format:", quiz.options);
-        await ctx.reply(`Error: Options for question "${question}" are invalid.`);
+      if (!quiz.question || !quiz.options || typeof quiz.options !== 'object') {
+        console.error("Invalid question or options format:", quiz);
+        await ctx.reply("Error: Invalid question or options in the quiz data.");
         continue;
       }
 
+      const question = quiz.question;
       const options = Object.values(quiz.options);
+
       if (options.length < 2) {
         console.error("Insufficient options:", options);
         await ctx.reply(`Error: At least two options are required for question "${question}".`);
@@ -77,36 +77,16 @@ async function pollUploader(ctx, user_id, name) {
       }
       
       const correctIndex = quiz.correctAnswer - 1;
-
       if (correctIndex < 0 || correctIndex >= options.length) {
         await ctx.reply(`Error: Correct answer index out of bounds for question "${question}".`);
         continue;
       }
     
-      const pollMessage = await ctx.sendPoll(question, options, {
+      await ctx.sendPoll(question, options, {
         type: "quiz",
         correct_option_id: correctIndex,
         is_anonymous: false,
         explanation: quiz.explanation || "",
-      });
-
-      bot.on("poll_answer", async (pollAnswerCtx) => {
-        const userId = pollAnswerCtx.user.id;
-        const userName = `${pollAnswerCtx.user.first_name} ${pollAnswerCtx.user.last_name || ""}`.trim();
-        const answerIndex = pollAnswerCtx.option_ids[0];
-
-        if (!userResponses[userId]) {
-          userResponses[userId] = { name: userName, correct: 0, wrong: 0, total: 0 };
-        }
-
-        const userScore = userResponses[userId];
-        userScore.total++;
-
-        if (answerIndex === correctIndex) {
-          userScore.correct++;
-        } else {
-          userScore.wrong++;
-        }
       });
 
       await new Promise((resolve) => setTimeout(resolve, 60000));
@@ -118,6 +98,28 @@ async function pollUploader(ctx, user_id, name) {
     await ctx.reply("Failed to upload the poll. Please try again.");
   }
 }
+
+bot.on("poll_answer", async (pollAnswerCtx) => {
+  const userId = pollAnswerCtx.user.id;
+  const userName = `${pollAnswerCtx.user.first_name} ${pollAnswerCtx.user.last_name || ""}`.trim();
+  const answerIndex = pollAnswerCtx.option_ids[0];
+  const pollId = pollAnswerCtx.poll_id;
+
+  if (!userResponses[userId]) {
+    userResponses[userId] = { name: userName, correct: 0, wrong: 0, total: 0 };
+  }
+
+  const userScore = userResponses[userId];
+  userScore.total++;
+
+  const correctIndex = quizData.find((q) => q.pollId === pollId)?.correctAnswer - 1;
+
+  if (answerIndex === correctIndex) {
+    userScore.correct++;
+  } else {
+    userScore.wrong++;
+  }
+});
 
 async function summarizeResults(ctx) {
   let summary = "🏆 **Quiz Leaderboard** 🏆\n\n";
@@ -132,6 +134,7 @@ async function summarizeResults(ctx) {
 
   await ctx.replyWithMarkdown(summary);
 }
+
 
 module.exports = { pollUploader };
 
