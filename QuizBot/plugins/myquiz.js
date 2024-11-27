@@ -52,6 +52,7 @@ const userResponses = {}; // Store user responses and scores
 
 async function pollUploader(ctx, user_id, name) {
   try {
+    console.log(name)
     const quizData = await getQuiz(user_id, name);
 
     if (!quizData || quizData.length === 0) {
