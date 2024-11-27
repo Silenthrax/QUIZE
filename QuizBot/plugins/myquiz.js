@@ -53,7 +53,8 @@ async function pollUploader(ctx, user_id, name) {
   try {    
     const quizData = await getQuiz(user_id, name);
     console.log(`Quiz Name: ${name}`)    
-
+    console.log(quizData)
+    
     if (!quizData || quizData.length === 0) {
       await ctx.reply("Bruh, Quiz Not Found!!");
       return;
@@ -62,6 +63,7 @@ async function pollUploader(ctx, user_id, name) {
     for (const quiz of quizData) {
       const question = quiz.question;
       const options = Object.values(quiz.options);
+      console.log(options)
       const correctIndex = quiz.correctAnswer - 1;
     
       const pollMessage = await ctx.sendPoll(question, options, {
