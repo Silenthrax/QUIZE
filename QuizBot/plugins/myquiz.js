@@ -54,8 +54,7 @@ async function pollUploader(ctx, user_id, name) {
     const quizData = await getQuiz(user_id, name); 
     console.log(`Quiz Name: ${name}`);
     console.log(quizData)
-    console.log(quizData.length)
-    ctx.reply(quizData)
+    ctx.reply(`${quizData}\n\n ${quizData.length}\n${quizData[0]}`)
     
     for (let i = 0; i < quizData.length; i++) {
       
