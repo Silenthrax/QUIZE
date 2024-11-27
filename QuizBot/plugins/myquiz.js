@@ -55,7 +55,8 @@ async function pollUploader(ctx, user_id, name) {
     const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
     
     console.log(`Quiz Name: ${name}`);
-    
+    await ctx.reply(`📝 **Quiz Started**: *${name}* 📚\n\nTotal Questions: ${quizData.length}. Get ready! 🎯`);
+
     for (let i = 0; i < quizData.length; i++) {
       const quiz = quizData[i];
       const question = quiz.question || "Demo";
@@ -65,7 +66,7 @@ async function pollUploader(ctx, user_id, name) {
 
       if (options.length < 2) {
         console.error("Insufficient options:", options);
-        await ctx.reply(`Error: At least two valid options are required for question "${question}".`);
+        await ctx.reply(`❌ Error: At least two valid options are required for question "${question}".`);
         continue;
       }
 
@@ -76,8 +77,7 @@ async function pollUploader(ctx, user_id, name) {
         explanation: explanation,
       });
 
-      // Collect user responses
-      bot.on("poll_answer", (pollAnswer) => {
+      ctx.on("poll_answer", (pollAnswer) => {
         const { user, option_ids } = pollAnswer;
         const userId = user.id;
         const correct = option_ids.includes(correctIndex);
@@ -94,19 +94,17 @@ async function pollUploader(ctx, user_id, name) {
       });
 
       console.log(`Waiting for 15 seconds before sending the next poll...`);
-      await new Promise((resolve) => setTimeout(resolve, 15000)); // 15 seconds delay
+      await new Promise((resolve) => setTimeout(resolve, 15000));
     }
 
-    // Display results after all polls
     const sortedResults = Object.values(userResponses).sort((a, b) => b.correct - a.correct);
-    let resultsMessage = "Quiz Results:\n\n";
+    let resultsMessage = "🎉 **Quiz Completed Successfully!** 🎉\n\n🏆 **Results:**\n\n";
 
     sortedResults.forEach((user, index) => {
-      resultsMessage += `${index + 1}. ${user.name} - Correct: ${user.correct}, Wrong: ${user.wrong}\n`;
+      resultsMessage += `**${index + 1}. ${user.name}** - ✅ Correct: ${user.correct}, ❌ Wrong: ${user.wrong}\n`;
     });
 
     if (resultsMessage.length > 4096) {
-      // Send as a document if too long
       const filePath = "/mnt/data/quiz_results.txt";
       const fs = require("fs");
       fs.writeFileSync(filePath, resultsMessage);
@@ -115,12 +113,13 @@ async function pollUploader(ctx, user_id, name) {
       await ctx.reply(resultsMessage);
     }
 
+    await ctx.reply("🎯 **Thank you for participating!** 🥳");
+
   } catch (error) {
     console.error("Error uploading poll:", error);
-    await ctx.reply("Failed to upload the poll. Please try again.");
+    await ctx.reply("❌ Failed to upload the poll. Please try again.");
   }
 }
-
 
 
 
