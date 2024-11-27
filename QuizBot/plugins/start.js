@@ -3,7 +3,7 @@ const { START_TEXT, TOOLS_TEXT, ABOUT_TEXT } = require("../core/formats");
 const { add_lang, get_lang } = require("../core/mongo/langsdb");
 const { add_user } = require("../core/mongo/usersdb");
 const { add_chat } = require("../core/mongo/chatsdb");
-const { pollfunction } = require("./myquiz");
+const { pollUploader } = require("./myquiz");
 
 
 // -------------- Buttons ------------------ //
@@ -48,7 +48,7 @@ bot.command("start", async (ctx) => {
 
     if (messageText.startsWith("/start QuizName")) {
         const quizName = messageText.split(" ")[1];
-        await pollfunction(ctx, user_id, quizName);
+        await pollUploader(ctx, user_id, quizName);
     } else {
         await add_user(user_id, name);
         let langs = await get_lang(user_id);
