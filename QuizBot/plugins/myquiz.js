@@ -1,9 +1,50 @@
 const bot = require("../index");
 const { getQuiz, getAllQuizNames } = require("../core/mongo/quizesdb");
 
+
+// ------------------ Buttons ------------------ //
+const removeAllMarkup = {
+  inline_keyboard: [
+    [
+      { text: "Remove All Quizzes", callback_data: "about_" } 
+    ]]};
+
+        
+// ---------------- My Quiz Command ---------------- //
+bot.command("myquiz", async (ctx) => {
+  const user_id = ctx.message.from.id;
+  const allquizNames = await getAllQuizNames(user_id);
+
+  if (!allquizNames || allquizNames.length === 0) {
+    ctx.reply('Quiz not found.');
+    return;
+  }
+
+  let NameText = 'Here are all your Quiz Names:\n\n';
+  const botName = ctx.botInfo.username;
+
+  allquizNames.forEach((name, index) => {
+    NameText += `Quiz ${index + 1}\nhttps://t.me/${botName}?start=QuizName_${name}\n\n`;
+  });
+
+  await ctx.reply(NameText, {
+    reply_markup: removeallmarkup});
+});
+
+
+// ------------- Actions -------------- //
+bot.action('remove_all_quizzes', async (ctx) => {
+  const user_id = ctx.from.id;
+  await removeAllQuizzes(user_id);
+  await ctx.answerCallbackQuery('All quizzes have been removed.');
+  await ctx.editMessageText('All quizzes have been removed successfully!');
+});
+
+
+// ---------------- Poll Function --------------- //
 const userResults = {};
 
-const quizFunction = async (ctx, userId, quizName) => {
+const pollFunction = async (ctx, userId, quizName) => {
   try {
     const quizData = await getQuiz(userId, quizName);
     if (!quizData) {
@@ -91,50 +132,8 @@ async function getUserAnswer() {
 
 
 
-// ------------------ Buttons ------------------ //
-const removeAllMarkup = {
-  inline_keyboard: [
-    [
-      { text: "Remove All Quizzes", callback_data: "about_" }
- 
-    ]
-  ]
-};
-
-        
-
-bot.command("myquiz", async (ctx) => {
-  const user_id = ctx.message.from.id;
-  const allquizNames = await getAllQuizNames(user_id);
-
-  if (!allquizNames || allquizNames.length === 0) {
-    ctx.reply('Quiz not found.');
-    return;
-  }
-
-  let NameText = 'Here are all your Quiz Names:\n\n';
-  const botName = ctx.botInfo.username;
-
-  allquizNames.forEach((name, index) => {
-    NameText += `Quiz ${index + 1}\nhttps://t.me/${botName}?start=QuizName_${name}\n\n`;
-  });
-
-  await ctx.reply(NameText, {
-    reply_markup: removeallmarkup});
-});
-
-
-bot.action('remove_all_quizzes', async (ctx) => {
-  const user_id = ctx.from.id;
-  await removeAllQuizzes(user_id);
-  await ctx.answerCallbackQuery('All quizzes have been removed.');
-  await ctx.editMessageText('All quizzes have been removed successfully!');
-});
 
 
 
-
-
-
-module.exports = { quizFunction };
+module.exports = { pollFunction };
 
