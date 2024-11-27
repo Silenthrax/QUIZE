@@ -42,25 +42,37 @@ bot.action('remove_all_quizzes', async (ctx) => {
   await ctx.editMessageText('All quizzes have been removed successfully!');
 });
 
-// test
+
+
+
 
 bot.command("viewquiz", async (ctx) => {
-  const user_id = ctx.from.id
-  name = "88FIJ1-152";
-  const lol = await getQuiz(user_id, name)
-  await ctx.reply(lol);
-
+  try {
+    const user_id = ctx.from.id;
+    const name = "88FIJ1-152"; // Use 'const' to declare variables when the value doesn't change
+    const quizData = await getQuiz(user_id, name);
+    await ctx.reply(quizData);
+  } catch (error) {
+    console.error("Error fetching quiz:", error);
+    await ctx.reply("There was an error fetching the quiz. Please try again later.");
+  }
 });
 
 // ---------------- Poll Function --------------- //
 
-async function pollfunction(user_id, name){
+async function pollUploader(ctx, user_id, name) {
+  try {
+    const quizData = await getQuiz(user_id, name);
+    await ctx.reply(quizData);
+  } catch (error) {
+    console.error("Error uploading poll:", error);
+    await ctx.reply("Failed to upload the poll. Please try again.");
+  }
+}
 
-  const lol = await getQuiz(user_id, name)
-  await ctx.reply(lol);}
- 
+module.exports = { pollUploader };
 
 
 
-module.exports = { pollFunction };
+
 
