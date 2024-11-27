@@ -38,7 +38,7 @@ bot.command("myquiz", async (ctx) => {
 bot.action('remove_all_quizzes', async (ctx) => {
   const user_id = ctx.from.id;
   await deleteAllQuizzes(user_id);  
-  await ctx.answerCallbackQuery('All quizzes have been removed.');
+  await ctx.answerCbQuery('All quizzes have been removed.');
   await ctx.editMessageText('All quizzes have been removed successfully!');
 });
 
