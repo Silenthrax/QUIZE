@@ -62,6 +62,8 @@ async function pollUploader(ctx, user_id, name) {
       const correctIndex = quiz.correctAnswer;
       const explanation = quiz.explanation || "";
 
+      console.log(`Question: ${}\nOptions: ${options}\nAnswer: ${correctIndex}\n\nExplanation: ${explanation}`)
+      
       if (options.length < 2) {
         console.error("Insufficient options:", options);
         await ctx.reply(`Error: At least two valid options are required for question "${question}".`);
