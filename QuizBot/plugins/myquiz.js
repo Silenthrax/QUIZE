@@ -25,10 +25,10 @@ bot.command("myquiz", async (ctx) => {
   const botName = ctx.botInfo.username;
 
   allquizNames.forEach((name, index) => {
-    NameText += `Quiz ${index + 1}\nhttps://t.me/${botName}?start=QuizName_${name}\n\n`;
+    NameText += `<b>Quiz ${index + 1} : ${name}</b>\nhttps://t.me/${botName}?start=QuizName_${name}\n\n`;
   });
 
-  await ctx.reply(NameText, {
+  await ctx.replyWithHTML(NameText, {
     reply_markup: removeAllMarkup 
   });
 });
