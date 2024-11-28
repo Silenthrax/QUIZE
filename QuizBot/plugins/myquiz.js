@@ -66,13 +66,13 @@ async function getQuizData(userId, quizName) {
     {
       question: "What is the capital of France?",
       options: ["Paris", "Berlin", "Madrid"],
-      correctAnswer: 0,
+      correctAnswer: "paris",
       explanation: "Paris is the capital of France.",
     },
     {
       question: "What is 2 + 2?",
       options: ["3", "4", "5"],
-      correctAnswer: 1,
+      correctAnswer: "4",
       explanation: "2 + 2 equals 4.",
     },
   ];
