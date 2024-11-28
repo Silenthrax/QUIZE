@@ -142,25 +142,25 @@ bot.action("maintainer_", async (ctx) => {
 bot.action("English_", async (ctx) => {
   let user_id = ctx.from.id;
   await add_lang(user_id, "English");
-  await ctx.answerCbQuery("You selected English language.");
+  await ctx.answerCbQuery("✅ You selected English language.", { show_alert: true });
 });
 
 bot.action("Hindi_", async (ctx) => {
   let user_id = ctx.from.id;
   await add_lang(user_id, "Hindi");
-  await ctx.answerCbQuery("You selected Hindi language.");
+  await ctx.answerCbQuery("✅ You selected Hindi language.", { show_alert: true });
 });
 
 bot.action("Chinese_", async (ctx) => {
   let user_id = ctx.from.id;
   await add_lang(user_id, "Chinese");
-  await ctx.answerCbQuery("You selected Chinese language.");
+  await ctx.answerCbQuery("✅ You selected Chinese language.", { show_alert: true });
 });
 
 bot.action("Russian_", async (ctx) => {
   let user_id = ctx.from.id;
   await add_lang(user_id, "Russian");
-  await ctx.answerCbQuery("You selected Russian language.");
+  await ctx.answerCbQuery("✅ You selected Russian language.", { show_alert: true });
 });
 
 // -------------------------------------- //
