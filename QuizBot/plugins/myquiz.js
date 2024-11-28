@@ -76,8 +76,10 @@ async function pollUploader(ctx, user_id, name) {
       if (quiz) {
         if (selectedOption === quiz.correctAnswer) {
           userResponses[userId].correct += 1;
+          console.log("correct");
         } else {
           userResponses[userId].wrong += 1;
+          console.log("wrong");
         }
       }
     });
