@@ -51,6 +51,34 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 let activeQuizzes = {};
 
+bot.on("poll_answer", (ctx) => {
+  const { user, poll_id, option_ids } = ctx.pollAnswer;
+  const userId = user.id;
+  const userName = user.first_name || "Anonymous";
+
+  for (const [quizUserId, quizData] of Object.entries(activeQuizzes)) {
+    const activeQuiz = quizData.questions.find((quiz) => quiz.poll_id === poll_id);
+
+    if (activeQuiz) {
+      if (!quizData.participants[userId]) {
+        quizData.participants[userId] = { name: userName, correct: 0, wrong: 0 };
+        console.log(`New participant added: ${userName} (ID: ${userId})`);
+      }
+
+      const userAnswer = option_ids[0];
+      if (userAnswer === activeQuiz.correctAnswer) {
+        quizData.participants[userId].correct += 1;
+        console.log(`${userName} answered correctly.`);
+      } else {
+        quizData.participants[userId].wrong += 1;
+        console.log(`${userName} answered incorrectly.`);
+      }
+      break;
+    }
+  }
+});
+
+
 async function pollUploader(ctx, user_id, quizName) {
   try {
     const quizDataRaw = await getQuiz(user_id, quizName);
@@ -90,34 +118,6 @@ async function pollUploader(ctx, user_id, quizName) {
     await ctx.reply("An error occurred while starting the quiz.");
   }
 }
-
-
-bot.on("poll_answer", (ctx) => {
-  const { user, poll_id, option_ids } = ctx.pollAnswer;
-  const userId = user.id;
-  const userName = user.first_name || "Anonymous";
-
-  for (const [quizUserId, quizData] of Object.entries(activeQuizzes)) {
-    const activeQuiz = quizData.questions.find((quiz) => quiz.poll_id === poll_id);
-
-    if (activeQuiz) {
-      if (!quizData.participants[userId]) {
-        quizData.participants[userId] = { name: userName, correct: 0, wrong: 0 };
-        console.log(`New participant added: ${userName} (ID: ${userId})`);
-      }
-
-      const userAnswer = option_ids[0];
-      if (userAnswer === activeQuiz.correctAnswer) {
-        quizData.participants[userId].correct += 1;
-        console.log(`${userName} answered correctly.`);
-      } else {
-        quizData.participants[userId].wrong += 1;
-        console.log(`${userName} answered incorrectly.`);
-      }
-      break;
-    }
-  }
-});
 
 
 async function showResults(ctx, quizOwnerId) {
