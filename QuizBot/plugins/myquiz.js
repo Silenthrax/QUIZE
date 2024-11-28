@@ -51,6 +51,10 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 const userResponses = {};
 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 bot.on("poll_answer", async (ctx) => {
   const userId = ctx.pollAnswer.user.id;
   const name = ctx.pollAnswer.user.first_name;
@@ -75,7 +79,6 @@ async function pollUploader(ctx, user_id, name) {
     const quizDataRaw = await getQuiz(user_id, name);
     const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
 
-    // Reset user responses at the start of each new quiz session
     Object.keys(userResponses).forEach((userId) => {
       userResponses[userId].correct = 0;
       userResponses[userId].wrong = 0;
@@ -84,6 +87,8 @@ async function pollUploader(ctx, user_id, name) {
     await ctx.replyWithHTML(
       `📝 <b>Quiz Started</b>: <b>${name}</b> 📚\n\nTotal Questions: ${quizData.length}. Get ready! 🎯`
     );
+
+    await delay(1000);  // Wait for 1 second before starting the quiz
 
     for (const quiz of quizData) {
       const { question, options, correctAnswer, explanation } = quiz;
@@ -97,9 +102,11 @@ async function pollUploader(ctx, user_id, name) {
       });
 
       quiz.poll_id = pollMessage.poll.id;
+
+      await delay(5000);  // Wait for 5 seconds before sending the next poll
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 20000));
+    await delay(5000);  // Wait for 5 seconds before showing results to ensure all answers are collected
 
     const sortedResults = Object.values(userResponses)
       .sort((a, b) => b.correct - a.correct);
@@ -125,8 +132,6 @@ async function pollUploader(ctx, user_id, name) {
     await ctx.reply("❌ Failed to upload the poll. Please try again.");
   }
 }
-
-
 
 
 
