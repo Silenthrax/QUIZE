@@ -56,63 +56,44 @@ async function pollUploader(ctx, user_id, name) {
 
     await ctx.reply(`📝 **Quiz Started**: *${name}* 📚\n\nTotal Questions: ${quizData.length}. Get ready! 🎯`);
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // Handle poll answers
-    
 
-    // Send quiz questions
-    for (let i = 0; i < quizData.length; i++) {
-      const quiz = quizData[i];
-      const question = quiz.question || "Demo";
-      const options = Object.values(quiz.options) || [1, 2, 3, 4];
-      const correctIndex = quiz.correctAnswer || 0;
+    bot.on("poll_answer", (pollAnswer) => {
+      const { user, option_ids } = pollAnswer;
 
-      await ctx.sendPoll(question, options, {
-        type: "quiz",
-        correct_option_id: correctIndex,
-        is_anonymous: false,
-      });
-
-      bot.on("poll_answer", (pollAnswer) => {
-      try {
-        const { user, option_ids } = pollAnswer;
-
-        console.log("Received pollAnswer:", JSON.stringify(pollAnswer, null, 2));
-        if (!user || !option_ids) {
-          console.warn("Missing user or option_ids in pollAnswer.");
-          return;
-        }
-
+      if (user && option_ids) {
         const userId = user.id;
-
         if (!userResponses[userId]) {
           userResponses[userId] = { name: user.first_name, correct: 0, wrong: 0 };
         }
 
-        const lastQuestionIndex = Object.keys(userResponses).length - 1;
-        const correctOptionIndex = quizData[lastQuestionIndex].correctAnswer;
+        const questionIndex = option_ids[0];
+        const correctOptionIndex = quizData[questionIndex]?.correctAnswer ?? -1;
 
-        if (option_ids.includes(correctOptionIndex)) {
+        if (correctOptionIndex === option_ids[0]) {
           userResponses[userId].correct += 1;
         } else {
           userResponses[userId].wrong += 1;
         }
-      } catch (error) {
-        console.error("Error processing poll answer:", error);
       }
     });
-      
-      console.log(`Waiting for 15 seconds before sending the next poll...`);
+
+    for (let i = 0; i < quizData.length; i++) {
+      const { question = "Demo", options = ["1", "2", "3", "4"], correctAnswer = 0 } = quizData[i];
+
+      await ctx.sendPoll(question, options, {
+        type: "quiz",
+        correct_option_id: correctAnswer,
+        is_anonymous: false,
+      });
+
       await new Promise((resolve) => setTimeout(resolve, 15000));
     }
 
-    // Handle the case when no one has responded
     if (Object.keys(userResponses).length === 0) {
       await ctx.reply("📊 **No participants responded to the quiz.**");
       return;
     }
 
-    // Sort and display results
     const sortedResults = Object.values(userResponses).sort((a, b) => b.correct - a.correct);
     let resultsMessage = "🎉 **Quiz Completed Successfully!** 🎉\n\n🏆 **Results:**\n\n";
 
@@ -120,7 +101,6 @@ async function pollUploader(ctx, user_id, name) {
       resultsMessage += `**${index + 1}. ${user.name}** - ✅ Correct: ${user.correct}, ❌ Wrong: ${user.wrong}\n`;
     });
 
-    // Check if the results message exceeds the character limit
     if (resultsMessage.length > 4096) {
       const fs = require("fs");
       const filePath = "/mnt/data/quiz_results.txt";
@@ -130,7 +110,6 @@ async function pollUploader(ctx, user_id, name) {
       await ctx.reply(resultsMessage);
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 5000));
     await ctx.reply("🎯 **Thank you for participating!** 🥳");
 
   } catch (error) {
