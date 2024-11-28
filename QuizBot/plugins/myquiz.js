@@ -94,12 +94,12 @@ async function pollUploader(ctx, user_id, name) {
     });
 
     await new Promise((resolve) => setTimeout(resolve, 20000));
-
+/*
     if (Object.keys(userResponses).length === 0) {
       await ctx.replyWithHTML("📊 <b>No participants responded to the quiz.</b>");
       return;
     }
-
+*/
     const sortedResults = Object.values(userResponses)
       .sort((a, b) => b.correct - a.correct);
 
