@@ -49,26 +49,22 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 // ------------- Poll Uploader ---------------- //
 
-const userResponses = [];
+const userResponses = {};
 
 async function pollUploader(ctx, user_id, name) {
   try {
     const quizDataRaw = await getQuiz(user_id, name);
     const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
 
-    // Notify user that quiz has started
     await ctx.replyWithHTML(
       `📝 <b>Quiz Started</b>: <b>${name}</b> 📚\n\nTotal Questions: ${quizData.length}. Get ready! 🎯`
     );
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Process each quiz question
     for (const quiz of quizData) {
-      const { question = "Demo", options, correctAnswer, explanation } = quiz;
-
+      const { question, options, correctAnswer, explanation } = quiz;
       const pollOptions = Object.values(options).map(String);
 
-      // Send the poll
       const pollMessage = await bot.telegram.sendPoll(ctx.chat.id, question, pollOptions, {
         type: "quiz",
         correct_option_id: correctAnswer,
@@ -77,21 +73,19 @@ async function pollUploader(ctx, user_id, name) {
       });
 
       quiz.poll_id = pollMessage.poll.id;
-      await new Promise((resolve) => setTimeout(resolve, 15000)); // Wait for 15 seconds between polls
+      await new Promise((resolve) => setTimeout(resolve, 15000));
     }
 
-    // Handle poll answers
     bot.on("poll_answer", (ctx) => {
       const userId = ctx.pollAnswer.user.id;
+      const name = ctx.pollAnswer.user.first_name;
       const selectedOption = ctx.pollAnswer.option_ids[0];
 
-      // Initialize user response if not already present
       if (!userResponses[userId]) {
-        userResponses[userId] = { name: ctx.pollAnswer.user.first_name, correct: 0, wrong: 0 };
+        userResponses[userId] = { name: name, correct: 0, wrong: 0 };
       }
 
-      // Increment correct or wrong count based on answer
-      const quiz = quizData.find((q) => q.poll_id === ctx.pollAnswer.poll_id); // Get the correct quiz
+      const quiz = quizData.find((q) => q.poll_id === ctx.pollAnswer.poll_id); 
       if (selectedOption === quiz.correctAnswer) {
         userResponses[userId].correct += 1;
       } else {
@@ -99,27 +93,21 @@ async function pollUploader(ctx, user_id, name) {
       }
     });
 
-    // Wait for all responses (could be improved with better time control)
     await new Promise((resolve) => setTimeout(resolve, 20000));
 
-    // If no one responded
-    console.log(userResponses)
-    if (userResponses.length === 0) {
+    if (Object.keys(userResponses).length === 0) {
       await ctx.replyWithHTML("📊 <b>No participants responded to the quiz.</b>");
       return;
     }
 
-    // Sort results by correct answers (descending)
     const sortedResults = Object.values(userResponses)
       .sort((a, b) => b.correct - a.correct);
 
-    // Prepare results message
     let resultsMessage = "🎉 <b>Quiz Completed Successfully!</b>\n\n🏆 <b>Results:</b>\n\n";
     sortedResults.forEach((user, index) => {
       resultsMessage += `<b>${index + 1}. ${user.name}</b>\n✅ Correct: ${user.correct}\n❌ Wrong: ${user.wrong}\n\n`;
     });
 
-    // Handle large results output (more than 4096 characters)
     if (resultsMessage.length > 4096) {
       const filePath = "/mnt/data/quiz_results.txt";
       fs.writeFileSync(filePath, resultsMessage);
