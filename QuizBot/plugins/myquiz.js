@@ -48,6 +48,7 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 
 // ------------- Poll Uploader ---------------- //
+
 const userResponses = {};
 const activeQuizzes = {};
 const completedQuizzes = {};
@@ -78,17 +79,15 @@ async function pollUploader(ctx, user_id, quizName) {
       quiz.poll_id = pollMessage.poll.id;
       quiz.correctAnswer = parseInt(correctAnswer, 10);
 
-      await new Promise((resolve) => setTimeout(resolve, 15000));
+      await new Promise((resolve) => setTimeout(resolve, 15000)); // Waiting for poll completion
     }
   } catch (error) {
     console.error("Error uploading polls:", error);
     ctx.reply("An error occurred while uploading the quiz.");
   }
-});
+}
 
-
-
-bot.on("poll_answer", (ctx) => {
+bot.on("poll_answer", async (ctx) => {
   const { user, poll_id, option_ids } = ctx.pollAnswer;
   const userId = user.id;
   const userName = user.first_name;
@@ -114,7 +113,7 @@ bot.on("poll_answer", (ctx) => {
 
       completedQuizzes[quizUserId] -= 1;
       if (completedQuizzes[quizUserId] === 0) {
-        displayResults(ctx, quizUserId);
+        await displayResults(ctx, quizUserId); // Await the result display
         delete activeQuizzes[quizUserId];
         delete completedQuizzes[quizUserId];
       }
@@ -123,9 +122,12 @@ bot.on("poll_answer", (ctx) => {
   }
 });
 
-
 async function displayResults(ctx, quizOwnerId) {
-  const quizData = activeQuizzes[quizOwnerId];
+  const quizData = activeQuizzes[quizOwnerId]; // Get active quiz data for the user
+  if (!quizData) {
+    return ctx.reply("No quiz data found.");
+  }
+
   const participants = Object.values(quizData.participants);
   const sortedParticipants = participants.sort((a, b) => b.correct - a.correct);
 
@@ -148,8 +150,6 @@ async function displayResults(ctx, quizOwnerId) {
     await ctx.replyWithHTML(resultsMessage);
   }
 }
-
-
 
 
 
