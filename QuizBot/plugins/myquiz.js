@@ -48,7 +48,6 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 
 // ------------- Poll Uploader ---------------- //
-
 const userResponses = {};
 const activeQuizzes = {};
 const completedQuizzes = {};
@@ -62,8 +61,8 @@ async function pollUploader(ctx, user_id, quizName) {
       `📝 <b>Quiz Started:</b> <b>${quizName}</b>\nTotal Questions: ${quizData.length}\nGet ready! 🎯`
     );
 
-    activeQuizzes[user_id] = quizData;
-    completedQuizzes[user_id] = { total: quizData.length, answered: 0 };
+    activeQuizzes[user_id] = { quizName, questions: quizData, participants: {} };
+    completedQuizzes[user_id] = quizData.length;
 
     for (const quiz of quizData) {
       const { question, options, correctAnswer, explanation } = quiz;
@@ -92,37 +91,46 @@ bot.on("poll_answer", (ctx) => {
   const userId = user.id;
   const userName = user.first_name;
 
-  const activeQuiz = Object.values(activeQuizzes)
-    .flat()
-    .find((quiz) => quiz.poll_id === poll_id);
+  for (const [quizUserId, quizData] of Object.entries(activeQuizzes)) {
+    const activeQuiz = quizData.questions.find((quiz) => quiz.poll_id === poll_id);
+    if (activeQuiz) {
+      if (!quizData.participants[userId]) {
+        quizData.participants[userId] = { name: userName, correct: 0, wrong: 0 };
+      }
+      const userAnswer = option_ids[0];
+      const correctOption = activeQuiz.correctAnswer;
 
-  if (activeQuiz) {
-    const correctOption = activeQuiz.correctAnswer;
-    const userAnswer = option_ids[0];
+      if (userAnswer === correctOption) {
+        quizData.participants[userId].correct += 1;
+      } else {
+        quizData.participants[userId].wrong += 1;
+      }
 
-    if (!userResponses[userId]) {
-      userResponses[userId] = { name: userName, correct: 0, wrong: 0 };
-    }
-
-    if (userAnswer === correctOption) {
-      userResponses[userId].correct += 1;
-    } else {
-      userResponses[userId].wrong += 1;
-    }
-
-    completedQuizzes[userId].answered += 1;
-
-    if (completedQuizzes[userId].answered === completedQuizzes[userId].total) {
-      displayResults(ctx, userId, Object.keys(activeQuizzes).find(key => activeQuizzes[key] === activeQuiz));
-      delete activeQuizzes[userId];
-      delete completedQuizzes[userId];
+      completedQuizzes[quizUserId] -= 1;
+      if (completedQuizzes[quizUserId] === 0) {
+        await displayResults(ctx, quizUserId);
+        delete activeQuizzes[quizUserId];
+        delete completedQuizzes[quizUserId];
+      }
+      break;
     }
   }
 });
 
-async function displayResults(ctx, userId, quizName) {
-  const userResult = userResponses[userId];
-  const resultsMessage = `🎉 <b>Quiz Completed: ${quizName}</b>\n\n👤 Participant: <b>${userResult.name}</b>\n✅ Correct: ${userResult.correct}\n❌ Wrong: ${userResult.wrong}\n\n🎯 <b>Thank you for participating!</b> 🥳`;
+async function displayResults(ctx, quizOwnerId) {
+  const quizData = activeQuizzes[quizOwnerId];
+  const participants = Object.values(quizData.participants);
+  const sortedParticipants = participants.sort((a, b) => b.correct - a.correct);
+
+  let resultsMessage = `🎉 <b>Quiz Completed: ${quizData.quizName}</b>\n\n`;
+  resultsMessage += sortedParticipants
+    .map((p, i) => {
+      const rankEmoji = i === 0 ? "🏆" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🎖️";
+      return `${rankEmoji} <b>${p.name}</b> - ✅ Correct: ${p.correct} | ❌ Wrong: ${p.wrong}`;
+    })
+    .join("\n");
+
+  resultsMessage += `\n\n🎯 <b>Thank you all for participating!</b> 🥳`;
 
   if (resultsMessage.length > 4096) {
     const filePath = "/mnt/data/quiz_results.txt";
@@ -133,9 +141,6 @@ async function displayResults(ctx, userId, quizName) {
     await ctx.replyWithHTML(resultsMessage);
   }
 }
-
-
-
 
 
 
