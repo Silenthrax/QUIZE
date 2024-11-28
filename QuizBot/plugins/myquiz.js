@@ -54,7 +54,7 @@ async function pollUploader(ctx, user_id, name) {
     const quizDataRaw = await getQuiz(user_id, name);
     const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
 
-    await ctx.replyWithHTML(`📝 **Quiz Started**: *${name}* 📚\n\nTotal Questions: ${quizData.length}. Get ready! 🎯`);
+    await ctx.replyWithHTML(`📝 <b>Quiz Started</b>: <b>${name}</b> 📚\n\nTotal Questions: ${quizData.length}. Get ready! 🎯`);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     
     for (let i = 0; i < quizData.length; i++) {
@@ -104,16 +104,16 @@ async function pollUploader(ctx, user_id, name) {
 
     
     if (Object.keys(userResponses).length === 0) {
-      await ctx.replyWithHTML("📊 **No participants responded to the quiz.**");
+      await ctx.replyWithHTML("📊 <b>No participants responded to the quiz.</b>");
       return;
     }
 
     
     const sortedResults = Object.values(userResponses).sort((a, b) => b.correct - a.correct);
-    let resultsMessage = "🎉 **Quiz Completed Successfully!** 🎉\n\n🏆 **Results:**\n\n";
+    let resultsMessage = "🎉 <b>Quiz Completed Successfully!</b>\n\n🏆 <b>Results:</b>\n\n";
 
     sortedResults.forEach((user, index) => {
-      resultsMessage += `**${index + 1}. ${user.name}** - ✅ Correct: ${user.correct}, ❌ Wrong: ${user.wrong}\n`;
+      resultsMessage += `<b>${index + 1}. ${user.name}</b>\n\n✅ Correct: ${user.correct}\n❌ Wrong: ${user.wrong}\n`;
     });
 
 
@@ -127,7 +127,7 @@ async function pollUploader(ctx, user_id, name) {
     }
 
     await new Promise((resolve) => setTimeout(resolve, 5000));
-    await ctx.replyWithHTML("🎯 **Thank you for participating!** 🥳");
+    await ctx.replyWithHTML("🎯 <b>Thank you for participating!</b>🥳");
 
   } catch (error) {
     console.error("Error uploading poll:", error);
