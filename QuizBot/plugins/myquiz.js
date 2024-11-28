@@ -56,20 +56,9 @@ async function pollUploader(ctx, user_id, name) {
 
     await ctx.replyWithHTML(`📝 <b>Quiz Started</b>: <b>${name}</b> 📚\n\nTotal Questions: ${quizData.length}. Get ready! 🎯`);
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    for (let i = 0; i < quizData.length; i++) {
-      const quiz = quizData[i];
-      const question = quiz.question || "Demo";
-      const options = Object.values(quiz.options) || [1, 2, 3, 4];
-      const correctIndex = quiz.correctAnswer || 0;
 
-      await ctx.sendPoll(question, options, {
-        type: "quiz",
-        correct_option_id: correctIndex,
-        is_anonymous: false,
-      });
-
-      bot.on("poll_answer", (pollAnswer) => {
+    // Register the poll_answer event outside the loop
+    bot.on("poll_answer", (pollAnswer) => {
       try {
         const { user, option_ids } = pollAnswer;
 
@@ -85,8 +74,10 @@ async function pollUploader(ctx, user_id, name) {
           userResponses[userId] = { name: user.first_name, correct: 0, wrong: 0 };
         }
 
-        const lastQuestionIndex = Object.keys(userResponses).length - 1;
-        const correctOptionIndex = quizData[lastQuestionIndex].correctAnswer;
+        // Track answers for the current question
+        const currentQuestionIndex = pollAnswer.poll_id; // Unique identifier for each poll
+        const quiz = quizData[currentQuestionIndex]; // Get the current question
+        const correctOptionIndex = quiz.correctAnswer;
 
         if (option_ids.includes(correctOptionIndex)) {
           userResponses[userId].correct += 1;
@@ -97,25 +88,35 @@ async function pollUploader(ctx, user_id, name) {
         console.error("Error processing poll answer:", error);
       }
     });
-      
+
+    for (let i = 0; i < quizData.length; i++) {
+      const quiz = quizData[i];
+      const question = quiz.question || "Demo";
+      const options = Object.values(quiz.options) || [1, 2, 3, 4];
+      const correctIndex = quiz.correctAnswer || 0;
+
+      // Send the poll
+      const pollMessage = await ctx.sendPoll(question, options, {
+        type: "quiz",
+        correct_option_id: correctIndex,
+        is_anonymous: false,
+      });
+
       console.log(`Waiting for 15 seconds before sending the next poll...`);
-      await new Promise((resolve) => setTimeout(resolve, 15000));
+      await new Promise((resolve) => setTimeout(resolve, 15000)); // Wait for next question
     }
 
-    
     if (Object.keys(userResponses).length === 0) {
       await ctx.replyWithHTML("📊 <b>No participants responded to the quiz.</b>");
       return;
     }
 
-    
     const sortedResults = Object.values(userResponses).sort((a, b) => b.correct - a.correct);
     let resultsMessage = "🎉 <b>Quiz Completed Successfully!</b>\n\n🏆 <b>Results:</b>\n\n";
 
     sortedResults.forEach((user, index) => {
       resultsMessage += `<b>${index + 1}. ${user.name}</b>\n\n✅ Correct: ${user.correct}\n❌ Wrong: ${user.wrong}\n`;
     });
-
 
     if (resultsMessage.length > 4096) {
       const fs = require("fs");
@@ -134,6 +135,7 @@ async function pollUploader(ctx, user_id, name) {
     await ctx.reply("❌ Failed to upload the poll. Please try again.");
   }
 }
+
 
 
 
