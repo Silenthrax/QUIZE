@@ -83,8 +83,8 @@ async function pollUploader(ctx, user_id, quizName) {
       await new Promise((resolve) => setTimeout(resolve, 15000));
     }
 
-    console.log("Final state before results:", activeQuizzes[user_id]);
-    await showResults(ctx, user_id);
+  //  console.log("Final state before results:", activeQuizzes[user_id]);
+ //   await showResults(ctx, user_id);
   } catch (error) {
     console.error("Error starting the quiz:", error);
     await ctx.reply("An error occurred while starting the quiz.");
