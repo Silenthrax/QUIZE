@@ -56,21 +56,20 @@ async function pollUploader(ctx, user_id, quizName) {
     const quizDataRaw = await getQuiz(user_id, quizName);
     const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
 
-    await ctx.replyWithHTML(
-      `📝 <b>Quiz Started:</b> <b>${quizName}</b>\nTotal Questions: ${quizData.length}\nGet ready! 🎯`
-    );
-
     activeQuizzes[user_id] = {
       quizName,
       questions: quizData,
       participants: {},
     };
 
+    await ctx.replyWithHTML(
+      `📝 <b>Quiz Started:</b> <b>${quizName}</b>\nTotal Questions: ${quizData.length}\nGet ready! 🎯`
+    );
+
     for (const quiz of quizData) {
       const { question, options, correctAnswer, explanation } = quiz;
       const pollOptions = Object.values(options).map(String);
       const adjustedCorrectAnswer = Math.max(parseInt(correctAnswer, 10) - 1, 0);
-
       const pollMessage = await bot.telegram.sendPoll(ctx.chat.id, question, pollOptions, {
         type: "quiz",
         correct_option_id: adjustedCorrectAnswer,
@@ -84,6 +83,7 @@ async function pollUploader(ctx, user_id, quizName) {
       await new Promise((resolve) => setTimeout(resolve, 15000));
     }
 
+    console.log("Final state before results:", activeQuizzes[user_id]);
     await showResults(ctx, user_id);
   } catch (error) {
     console.error("Error starting the quiz:", error);
@@ -96,12 +96,6 @@ bot.on("poll_answer", (ctx) => {
   const { user, poll_id, option_ids } = ctx.pollAnswer;
   const userId = user.id;
   const userName = user.first_name || "Anonymous";
-
-  console.log(
-    `Poll answer received from ${userName} (ID: ${userId}), Poll ID: ${poll_id}, Answer: ${option_ids[0]}`
-  );
-
-  let participantAdded = false;
 
   for (const [quizUserId, quizData] of Object.entries(activeQuizzes)) {
     const activeQuiz = quizData.questions.find((quiz) => quiz.poll_id === poll_id);
@@ -120,14 +114,8 @@ bot.on("poll_answer", (ctx) => {
         quizData.participants[userId].wrong += 1;
         console.log(`${userName} answered incorrectly.`);
       }
-
-      participantAdded = true;
-      break; // Break loop after processing the matching poll
+      break;
     }
-  }
-
-  if (!participantAdded) {
-    console.error(`No matching quiz found for poll ID: ${poll_id}`);
   }
 });
 
@@ -135,7 +123,6 @@ bot.on("poll_answer", (ctx) => {
 async function showResults(ctx, quizOwnerId) {
   const quizData = activeQuizzes[quizOwnerId];
 
-  console.log(quizData)
   if (!quizData) {
     return await ctx.reply("No quiz data found.");
   }
@@ -157,15 +144,7 @@ async function showResults(ctx, quizOwnerId) {
 
   resultsMessage += `\n\n🎯 <b>Thank you all for participating!</b> 🥳`;
 
-  if (resultsMessage.length > 4096) {
-    const filePath = "/mnt/data/quiz_results.txt";
-    fs.writeFileSync(filePath, resultsMessage);
-    await ctx.replyWithDocument({ source: filePath, filename: "quiz_results.txt" });
-    fs.unlinkSync(filePath);
-  } else {
-    await ctx.replyWithHTML(resultsMessage);
-  }
-
+  await ctx.replyWithHTML(resultsMessage);
   delete activeQuizzes[quizOwnerId];
 }
 
