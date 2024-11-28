@@ -196,6 +196,7 @@ async function showResults(ctx, quizOwnerId) {
 
   resultsMessage += `\n\n🎯 <b>Thank you all for participating!</b> 🥳`;
 
+  console.log(resultsMessage)
   if (resultsMessage.length > 4096) {
     const filePath = "/mnt/data/quiz_results.txt";
     fs.writeFileSync(filePath, resultsMessage);
