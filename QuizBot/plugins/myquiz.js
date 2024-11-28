@@ -51,11 +51,35 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 const userResponses = {};
 
+bot.on("poll_answer", async (ctx) => {
+  const userId = ctx.pollAnswer.user.id;
+  const name = ctx.pollAnswer.user.first_name;
+  const selectedOption = ctx.pollAnswer.option_ids[0];
+
+  if (!userResponses[userId]) {
+    userResponses[userId] = { name: name, correct: 0, wrong: 0 };
+  }
+
+  const quiz = quizData.find((q) => q.poll_id === ctx.pollAnswer.poll_id);
+  if (quiz) {
+    if (selectedOption === quiz.correctAnswer) {
+      userResponses[userId].correct += 1;
+    } else {
+      userResponses[userId].wrong += 1;
+    }
+  }
+});
 
 async function pollUploader(ctx, user_id, name) {
   try {
     const quizDataRaw = await getQuiz(user_id, name);
     const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
+
+    // Reset user responses at the start of each new quiz session
+    Object.keys(userResponses).forEach((userId) => {
+      userResponses[userId].correct = 0;
+      userResponses[userId].wrong = 0;
+    });
 
     await ctx.replyWithHTML(
       `📝 <b>Quiz Started</b>: <b>${name}</b> 📚\n\nTotal Questions: ${quizData.length}. Get ready! 🎯`
@@ -77,7 +101,6 @@ async function pollUploader(ctx, user_id, name) {
 
     await new Promise((resolve) => setTimeout(resolve, 20000));
 
-    console.log(userResponses);
     const sortedResults = Object.values(userResponses)
       .sort((a, b) => b.correct - a.correct);
 
@@ -103,26 +126,8 @@ async function pollUploader(ctx, user_id, name) {
   }
 }
 
-bot.on("poll_answer", async (ctx) => {
-  const userId = ctx.pollAnswer.user.id;
-  const name = ctx.pollAnswer.user.first_name;
-  const selectedOption = ctx.pollAnswer.option_ids[0];
 
-  if (!userResponses[userId]) {
-    userResponses[userId] = { name: name, correct: 0, wrong: 0 };
-  }
 
-  const quiz = quizData.find((q) => q.poll_id === ctx.pollAnswer.poll_id);
-  if (quiz) {
-    if (selectedOption === quiz.correctAnswer) {
-      userResponses[userId].correct += 1;
-      console.log("correct");
-    } else {
-      userResponses[userId].wrong += 1;
-      console.log("wrong");
-    }
-  }
-});
 
 
 
