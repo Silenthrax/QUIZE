@@ -76,14 +76,14 @@ async function pollUploader(ctx, user_id, quizName) {
       const pollMessage = await bot.telegram.sendPoll(ctx.chat.id, question, pollOptions, {
         type: "quiz",
         correct_option_id: parseInt(correctAnswer, 10),
-        explanation,
         is_anonymous: false,
+        explanation: explanation,
       });
 
       quiz.poll_id = pollMessage.poll.id;
       quiz.correctAnswer = parseInt(correctAnswer, 10);
 
-      await new Promise((resolve) => setTimeout(resolve, 15000)); // Waiting for poll completion
+      await new Promise(resolve => setTimeout(resolve, 15000));
     }
   } catch (error) {
     console.error("Error starting the quiz:", error);
@@ -110,10 +110,8 @@ bot.on("poll_answer", async (ctx) => {
 
       if (userAnswer === correctOption) {
         quizData.participants[userId].correct += 1;
-        await ctx.reply(`${userName}, your answer is correct! 🎉`);
       } else {
         quizData.participants[userId].wrong += 1;
-        await ctx.reply(`${userName}, your answer is incorrect. 😔`);
       }
 
       completedQuizzes[quizUserId] -= 1;
@@ -127,6 +125,7 @@ bot.on("poll_answer", async (ctx) => {
     }
   }
 });
+
 
 async function showResults(ctx, quizOwnerId) {
   const quizData = activeQuizzes[quizOwnerId];
@@ -162,4 +161,6 @@ async function showResults(ctx, quizOwnerId) {
 
 
 module.exports = { pollUploader };
+
+
 
