@@ -18,6 +18,7 @@ Here are all the commands related to the Quiz bot:
 
 → <code>/addquiz</code> : Send a file with the quizzes, reply with this command, and multiple quizzes will be created.
 → <code>/myquiz</code> : View all the quizzes you have created.
+→ <code>/removequiz</code>: This command will remove a specific quiz.
 → <code>/stats</code> : Check user and chat statistics using this command.
 → <code>/broadcast</code> : Broadcast messages to all users or chats using this command.
 `,
@@ -27,6 +28,7 @@ Here are all the commands related to the Quiz bot:
 
 → <code>/addquiz</code> : क्विज़ के साथ एक फ़ाइल भेजें, इस कमांड का उत्तर दें, और कई क्विज़ बनाए जाएंगे।
 → <code>/myquiz</code> : आपने जो भी क्विज़ बनाए हैं उन्हें देखें।
+→ <code>/removequiz</code>: यह कमांड एक विशेष क्विज़ को हटा देगी।
 → <code>/stats</code> : इस कमांड का उपयोग करके उपयोगकर्ता और चैट आँकड़े जांचें।
 → <code>/broadcast</code> : सभी उपयोगकर्ताओं या चैट्स को संदेश प्रसारित करें।
 `,
@@ -36,6 +38,7 @@ Here are all the commands related to the Quiz bot:
 
 → <code>/addquiz</code> : 发送包含测验的文件，回复此命令，将创建多个测验。
 → <code>/myquiz</code> : 查看您创建的所有测验。
+→ <code>/removequiz</code>: 此命令将删除特定的测验。
 → <code>/stats</code> : 使用此命令检查用户和聊天统计数据。
 → <code>/broadcast</code> : 使用此命令向所有用户或聊天广播消息。
 `,
@@ -45,6 +48,7 @@ Here are all the commands related to the Quiz bot:
 
 → <code>/addquiz</code> : Отправьте файл с викторинами, ответьте этой командой, и будет создано несколько викторин.
 → <code>/myquiz</code> : Просмотрите все викторины, которые вы создали.
+→ <code>/removequiz</code>: Эта команда удалит конкретную викторину.
 → <code>/stats</code> : Используйте эту команду, чтобы проверить статистику пользователей и чатов.
 → <code>/broadcast</code> : Рассылайте сообщения всем пользователям или чатам с помощью этой команды.
 `
