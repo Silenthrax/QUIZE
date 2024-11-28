@@ -121,13 +121,10 @@ bot.action(/^removequiz_yes:(.+)/, async (ctx) => {
         return ctx.answerCbQuery("⛔ This action is not for you.", { show_alert: true });
     }
 
-    const success = await deleteQuiz(initiatingUserId, quizName);
-    await ctx.answerCbQuery(success ? "✅ Successfully deleted." : "❌ Failed to delete.");
+    await deleteQuiz(initiatingUserId, quizName);
+    await ctx.answerCbQuery("✅ Successfully deleted.");
 
-    await ctx.editMessageText(
-        success
-            ? `🗑️ The quiz *"${quizName}"* has been deleted.`
-            : `⚠️ Failed to delete the quiz *"${quizName}"*. Please try again.`,
+    await ctx.editMessageText(`🗑️ The quiz *"${quizName}"* has been deleted.`,        
         { parse_mode: "Markdown" }
     );
 });
