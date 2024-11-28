@@ -49,8 +49,6 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 // ------------- Poll Uploader ---------------- //
 
-const fs = require("fs");
-
 let activeQuizzes = {};
 
 async function pollUploader(ctx, user_id, quizName) {
