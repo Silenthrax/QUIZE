@@ -106,11 +106,9 @@ bot.on("poll_answer", async (ctx) => {
       const correctOption = activeQuiz.correctAnswer;
 
       if (userAnswer === correctOption) {
-        quizData.participants[userId].correct += 1;
-        await ctx.reply(`${userName}, your answer is correct! 🎉`);
+        quizData.participants[userId].correct += 1;    
       } else {
-        quizData.participants[userId].wrong += 1;
-        await ctx.reply(`${userName}, your answer is incorrect. 😔`);
+        quizData.participants[userId].wrong += 1;     
       }
 
       completedQuizzes[quizUserId] -= 1;
