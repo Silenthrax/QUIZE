@@ -61,23 +61,6 @@ async function pollUploader(ctx, user_id, name) {
     );
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    bot.on("poll_answer", (pollAnswer) => {
-      const { user, option_ids, poll_id } = pollAnswer;
-      const userId = user.id;
-      const questionIndex = quizData.findIndex((quiz) => quiz.poll_id === poll_id);
-      const correctOptionIndex = quizData[questionIndex]?.correctAnswer;
-
-      if (!userResponses[userId]) {
-        userResponses[userId] = { name: user.first_name, correct: 0, wrong: 0 };
-      }
-
-      if (option_ids.includes(correctOptionIndex)) {
-        userResponses[userId].correct += 1;
-      } else {
-        userResponses[userId].wrong += 1;
-      }
-    });
-
     for (const quiz of quizData) {
       const { question = "Demo", options, correctAnswer, explanation } = quiz;
 
@@ -94,6 +77,23 @@ async function pollUploader(ctx, user_id, name) {
       await new Promise((resolve) => setTimeout(resolve, 15000));
     }
 
+    bot.on("poll_answer", (pollAnswer) => {
+      const { user, option_ids, poll_id } = pollAnswer;
+      const userId = user.id;
+      const questionIndex = quizData.findIndex((quiz) => quiz.poll_id === poll_id);
+      const correctOptionIndex = quizData[questionIndex]?.correctAnswer;
+
+      if (!userResponses[userId]) {
+        userResponses[userId] = { name: user.first_name, correct: 0, wrong: 0 };
+      }
+
+      if (option_ids.includes(correctOptionIndex)) {
+        userResponses[userId].correct += 1;
+      } else {
+        userResponses[userId].wrong += 1;
+      }
+    });
+    
     if (Object.keys(userResponses).length === 0) {
       await ctx.replyWithHTML("📊 <b>No participants responded to the quiz.</b>");
       return;
