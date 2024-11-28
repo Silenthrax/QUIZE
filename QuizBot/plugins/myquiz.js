@@ -54,54 +54,68 @@ async function pollUploader(ctx, user_id, name) {
     const quizDataRaw = await getQuiz(user_id, name);
     const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
 
-    await ctx.reply(`📝 **Quiz Started**: *${name}* 📚\n\nTotal Questions: ${quizData.length}. Get ready! 🎯`);
+    await ctx.replyWithHTML(`📝 **Quiz Started**: *${name}* 📚\n\nTotal Questions: ${quizData.length}. Get ready! 🎯`);
     await new Promise((resolve) => setTimeout(resolve, 1000));
+    
+    for (let i = 0; i < quizData.length; i++) {
+      const quiz = quizData[i];
+      const question = quiz.question || "Demo";
+      const options = Object.values(quiz.options) || [1, 2, 3, 4];
+      const correctIndex = quiz.correctAnswer || 0;
 
-    bot.on("poll_answer", (pollAnswer) => {
-      const { user, option_ids } = pollAnswer;
+      await ctx.sendPoll(question, options, {
+        type: "quiz",
+        correct_option_id: correctIndex,
+        is_anonymous: false,
+      });
 
-      if (user && option_ids) {
+      bot.on("poll_answer", (pollAnswer) => {
+      try {
+        const { user, option_ids } = pollAnswer;
+
+        console.log("Received pollAnswer:", JSON.stringify(pollAnswer, null, 2));
+        if (!user || !option_ids) {
+          console.warn("Missing user or option_ids in pollAnswer.");
+          return;
+        }
+
         const userId = user.id;
+
         if (!userResponses[userId]) {
           userResponses[userId] = { name: user.first_name, correct: 0, wrong: 0 };
         }
 
-        const questionIndex = Object.keys(userResponses[userId]).length - 1;
-        const correctOptionIndex = quizData[questionIndex]?.correctAnswer ?? -1;
+        const lastQuestionIndex = Object.keys(userResponses).length - 1;
+        const correctOptionIndex = quizData[lastQuestionIndex].correctAnswer;
 
-        if (correctOptionIndex === option_ids[0]) {
+        if (option_ids.includes(correctOptionIndex)) {
           userResponses[userId].correct += 1;
         } else {
           userResponses[userId].wrong += 1;
         }
+      } catch (error) {
+        console.error("Error processing poll answer:", error);
       }
     });
-
-    for (let i = 0; i < quizData.length; i++) {
-      const { question = "Demo", options = [], correctAnswer = 0 } = quizData[i];
-      const formattedOptions = options.map((opt) => opt.toString());
-
-      await ctx.sendPoll(question, formattedOptions, {
-        type: "quiz",
-        correct_option_id: correctAnswer,
-        is_anonymous: false,
-      });
-
+      
+      console.log(`Waiting for 15 seconds before sending the next poll...`);
       await new Promise((resolve) => setTimeout(resolve, 15000));
     }
 
+    
     if (Object.keys(userResponses).length === 0) {
-      await ctx.reply("📊 **No participants responded to the quiz.**");
+      await ctx.replyWithHTML("📊 **No participants responded to the quiz.**");
       return;
     }
 
+    
     const sortedResults = Object.values(userResponses).sort((a, b) => b.correct - a.correct);
-    let resultsMessage = "🎉 **Quiz Completed Successfully!** 🎉\n\n";
-    resultsMessage += `📊 **Total Participants:** ${Object.keys(userResponses).length}\n\n🏆 **Results:**\n\n`;
+    let resultsMessage = "🎉 **Quiz Completed Successfully!** 🎉\n\n🏆 **Results:**\n\n";
 
     sortedResults.forEach((user, index) => {
       resultsMessage += `**${index + 1}. ${user.name}** - ✅ Correct: ${user.correct}, ❌ Wrong: ${user.wrong}\n`;
     });
+
 
     if (resultsMessage.length > 4096) {
       const fs = require("fs");
@@ -109,10 +123,11 @@ async function pollUploader(ctx, user_id, name) {
       fs.writeFileSync(filePath, resultsMessage);
       await ctx.replyWithDocument({ source: filePath, filename: "quiz_results.txt" });
     } else {
-      await ctx.reply(resultsMessage);
+      await ctx.replyWithHTML(resultsMessage);
     }
 
-    await ctx.reply("🎯 **Thank you for participating!** 🥳");
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await ctx.replyWithHTML("🎯 **Thank you for participating!** 🥳");
 
   } catch (error) {
     console.error("Error uploading poll:", error);
