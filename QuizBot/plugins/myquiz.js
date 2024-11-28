@@ -103,6 +103,7 @@ async function pollUploader(ctx, user_id, name) {
     await new Promise((resolve) => setTimeout(resolve, 20000));
 
     // If no one responded
+    console.log(userResponses)
     if (userResponses.length === 0) {
       await ctx.replyWithHTML("📊 <b>No participants responded to the quiz.</b>");
       return;
