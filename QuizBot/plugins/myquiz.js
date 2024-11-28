@@ -51,9 +51,6 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 let activeQuizzes = {};
 
-
-let activeQuizzes = {};
-
 async function pollUploader(ctx, user_id, quizName) {
   try {
     const quizDataRaw = await getQuiz(user_id, quizName);
