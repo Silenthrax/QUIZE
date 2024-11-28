@@ -50,7 +50,8 @@ bot.action('remove_all_quizzes', async (ctx) => {
 // ------------- Poll Uploader ---------------- //
 
 const userResponses = {};
-const activeQuizzes = {}; // Assuming you store active quizzes here
+const activeQuizzes = {};
+const completedQuizzes = {};
 
 async function pollUploader(ctx, user_id, quizName) {
   try {
@@ -62,6 +63,7 @@ async function pollUploader(ctx, user_id, quizName) {
     );
 
     activeQuizzes[user_id] = quizData;
+    completedQuizzes[user_id] = { total: quizData.length, answered: 0 };
 
     for (const quiz of quizData) {
       const { question, options, correctAnswer, explanation } = quiz;
@@ -75,7 +77,7 @@ async function pollUploader(ctx, user_id, quizName) {
       });
 
       quiz.poll_id = pollMessage.poll.id;
-      quiz.correctAnswer = parseInt(correctAnswer, 10); // Ensure it's stored as a number
+      quiz.correctAnswer = parseInt(correctAnswer, 10);
 
       await new Promise((resolve) => setTimeout(resolve, 15000));
     }
@@ -107,6 +109,14 @@ bot.on("poll_answer", (ctx) => {
     } else {
       userResponses[userId].wrong += 1;
     }
+
+    completedQuizzes[userId].answered += 1;
+
+    if (completedQuizzes[userId].answered === completedQuizzes[userId].total) {
+      displayResults(ctx, userId, Object.keys(activeQuizzes).find(key => activeQuizzes[key] === activeQuiz));
+      delete activeQuizzes[userId];
+      delete completedQuizzes[userId];
+    }
   }
 });
 
@@ -123,6 +133,9 @@ async function displayResults(ctx, userId, quizName) {
     await ctx.replyWithHTML(resultsMessage);
   }
 }
+
+
+
 
 
 
