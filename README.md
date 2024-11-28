@@ -17,9 +17,13 @@ Here are all the commands related to the Quiz Bot:
 
   
 → `/addquiz` : Send a file with quizzes, reply with this command, and multiple quizzes will be created.  
+
 → `/myquiz` : View all the quizzes you have created. 
+
 → `/removequiz`: This command will remove a specific quiz.
+
  → `/stats` : Check user and chat statistics using this command.  
+ 
 → `/broadcast` : Broadcast messages to all users or chats using this command.
 
 ---
