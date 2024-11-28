@@ -119,6 +119,7 @@ bot.on("poll_answer", (ctx) => {
 async function showResults(ctx, quizOwnerId) {
   const quizData = activeQuizzes[quizOwnerId];
 
+  console.log(quizData)
   if (!quizData) {
     return await ctx.reply("No quiz data found.");
   }
