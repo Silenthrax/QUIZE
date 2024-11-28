@@ -51,44 +51,38 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 const userResponses = {};
 
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-bot.on("poll_answer", async (ctx) => {
-  const userId = ctx.pollAnswer.user.id;
-  const name = ctx.pollAnswer.user.first_name;
-  const selectedOption = ctx.pollAnswer.option_ids[0];
-
-  if (!userResponses[userId]) {
-    userResponses[userId] = { name: name, correct: 0, wrong: 0 };
-  }
-
-  const quiz = quizData.find((q) => q.poll_id === ctx.pollAnswer.poll_id);
-  if (quiz) {
-    if (selectedOption === quiz.correctAnswer) {
-      userResponses[userId].correct += 1;
-    } else {
-      userResponses[userId].wrong += 1;
-    }
-  }
-});
-
 async function pollUploader(ctx, user_id, name) {
   try {
     const quizDataRaw = await getQuiz(user_id, name);
     const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
 
-    Object.keys(userResponses).forEach((userId) => {
-      userResponses[userId].correct = 0;
-      userResponses[userId].wrong = 0;
-    });
-
     await ctx.replyWithHTML(
       `📝 <b>Quiz Started</b>: <b>${name}</b> 📚\n\nTotal Questions: ${quizData.length}. Get ready! 🎯`
     );
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    await delay(1000);  // Wait for 1 second before starting the quiz
+    // Attach the poll_answer listener before sending polls
+    bot.on("poll_answer", async (ctx) => {
+      const userId = ctx.pollAnswer.user.id;
+      const name = ctx.pollAnswer.user.first_name;
+      const selectedOption = ctx.pollAnswer.option_ids[0];
+
+      // Ensure userResponses is initialized for new users
+      if (!userResponses[userId]) {
+        userResponses[userId] = { name: name, correct: 0, wrong: 0 };
+      }
+
+      const quiz = quizData.find((q) => q.poll_id === ctx.pollAnswer.poll_id);
+      if (quiz) {
+        if (selectedOption === quiz.correctAnswer) {
+          userResponses[userId].correct += 1;
+          console.log("correct");
+        } else {
+          userResponses[userId].wrong += 1;
+          console.log("wrong");
+        }
+      }
+    });
 
     for (const quiz of quizData) {
       const { question, options, correctAnswer, explanation } = quiz;
@@ -102,12 +96,13 @@ async function pollUploader(ctx, user_id, name) {
       });
 
       quiz.poll_id = pollMessage.poll.id;
-
-      await delay(5000);  // Wait for 5 seconds before sending the next poll
+      await new Promise((resolve) => setTimeout(resolve, 15000)); // Delay between polls
     }
 
-    await delay(5000);  // Wait for 5 seconds before showing results to ensure all answers are collected
+    // Wait for all poll responses to accumulate
+    await new Promise((resolve) => setTimeout(resolve, 20000));
 
+    console.log(userResponses)
     const sortedResults = Object.values(userResponses)
       .sort((a, b) => b.correct - a.correct);
 
@@ -132,6 +127,7 @@ async function pollUploader(ctx, user_id, name) {
     await ctx.reply("❌ Failed to upload the poll. Please try again.");
   }
 }
+
 
 
 
