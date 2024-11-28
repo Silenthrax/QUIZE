@@ -53,6 +53,7 @@ const userResponses = {};
 const activeQuizzes = {};
 const completedQuizzes = {};
 
+/*
 async function pollUploader(ctx, user_id, quizName) {
   try {
     const quizDataRaw = await getQuiz(user_id, quizName);
@@ -85,6 +86,53 @@ async function pollUploader(ctx, user_id, quizName) {
 
       await new Promise(resolve => setTimeout(resolve, 15000));
     }
+  } catch (error) {
+    console.error("Error starting the quiz:", error);
+    ctx.reply("An error occurred while starting the quiz.");
+  }
+}
+*/
+
+async function pollUploader(ctx, user_id, quizName) {
+  try {
+    const quizDataRaw = await getQuiz(user_id, quizName);
+    const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
+
+    await ctx.replyWithHTML(
+      `📝 <b>Quiz Started:</b> <b>${quizName}</b>\nTotal Questions: ${quizData.length}\nGet ready! 🎯`
+    );
+
+    activeQuizzes[user_id] = {
+      quizName,
+      questions: quizData,
+      participants: {}
+    };
+    completedQuizzes[user_id] = quizData.length;
+
+    for (const quiz of quizData) {
+      const { question, options, correctAnswer, explanation } = quiz;
+      const pollOptions = Object.values(options).map(String);
+
+      const pollMessage = await bot.telegram.sendPoll(ctx.chat.id, question, pollOptions, {
+        type: "quiz",
+        correct_option_id: parseInt(correctAnswer, 10),
+        is_anonymous: false,
+        explanation: explanation,
+      });
+
+      quiz.poll_id = pollMessage.poll.id;
+      quiz.correctAnswer = parseInt(correctAnswer, 10);
+
+      await new Promise(resolve => setTimeout(resolve, 15000));
+    }
+
+    // Call showResults after the quiz is done
+    await showResults(ctx, user_id);
+
+    // Cleanup after showing results
+    delete activeQuizzes[user_id];
+    delete completedQuizzes[user_id];
+    
   } catch (error) {
     console.error("Error starting the quiz:", error);
     ctx.reply("An error occurred while starting the quiz.");
