@@ -81,7 +81,6 @@ async function pollUploader(ctx, user_id, name) {
     for (const quiz of quizData) {
       const { question = "Demo", options, correctAnswer, explanation } = quiz;
 
-      // Convert options to an array of strings
       const pollOptions = Object.values(options).map(String);
 
       const pollMessage = await bot.telegram.sendPoll(ctx.chat.id, question, pollOptions, {
@@ -123,14 +122,6 @@ async function pollUploader(ctx, user_id, name) {
     await ctx.reply("❌ Failed to upload the poll. Please try again.");
   }
 }
-
-
-
-
-
-
-
-
 
 
 
