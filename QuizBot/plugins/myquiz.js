@@ -94,7 +94,7 @@ async function pollUploader(ctx, user_id, name) {
       const options = Object.values(quiz.options) || [1, 2, 3, 4];
       const correctIndex = quiz.correctAnswer || 0;
 
-      const pollMessage = await ctx.sendPoll(question, options, {
+      const pollMessage = await bot.sendPoll(question, options, {
         type: "quiz",
         correct_option_id: correctIndex,
         is_anonymous: false,
@@ -140,4 +140,47 @@ async function pollUploader(ctx, user_id, name) {
 
 
 
+const userScores = {};
+
+// /poll command to create a quiz
+bot.command('poll', (ctx) => {
+  ctx.telegram.sendPoll(
+    ctx.chat.id,
+    'Which is the capital of France?',
+    ['Paris', 'Berlin', 'Madrid'],
+    {
+      type: 'quiz',
+      correct_option_id: 0,
+      explanation: 'Paris is the capital of France.',
+      is_anonymous: false,  // Ensures we can track users
+    }
+  );
+});
+
+// Listen for poll answers
+bot.on('poll_answer', (ctx) => {
+  const userId = ctx.pollAnswer.user.id;
+  const selectedOption = ctx.pollAnswer.option_ids[0];
+  const correctOption = 0; // Paris
+
+  // Initialize user score if not already present
+  if (!userScores[userId]) {
+    userScores[userId] = { correct: 0, wrong: 0 };
+  }
+
+  if (selectedOption === correctOption) {
+    userScores[userId].correct += 1;
+    ctx.telegram.sendMessage(ctx.pollAnswer.user.id, `Correct! ✅ Total Correct: ${userScores[userId].correct}`);
+  } else {
+    userScores[userId].wrong += 1;
+    ctx.telegram.sendMessage(ctx.pollAnswer.user.id, `Wrong! ❌ Total Wrong: ${userScores[userId].wrong}`);
+  }
+});
+
+
+
+
+
 module.exports = { pollUploader };
+
+
