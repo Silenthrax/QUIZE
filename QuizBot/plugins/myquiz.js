@@ -94,6 +94,7 @@ bot.on("poll_answer", async (ctx) => {
 
   console.log(`Poll answer received from ${userName} (ID: ${userId}):`, option_ids);
 
+  // Process the poll answer for the specific quiz
   for (const [quizUserId, quizData] of Object.entries(activeQuizzes)) {
     const activeQuiz = quizData.questions.find((quiz) => quiz.poll_id === poll_id);
     if (activeQuiz) {
@@ -103,15 +104,19 @@ bot.on("poll_answer", async (ctx) => {
       const userAnswer = option_ids[0];
       const correctOption = activeQuiz.correctAnswer;
 
+      // Check if the answer is correct
       if (userAnswer === correctOption) {
         quizData.participants[userId].correct += 1;
-        ctx.reply(`${userName}, your answer is correct! 🎉`);
+        await ctx.reply(`${userName}, your answer is correct! 🎉`);
       } else {
         quizData.participants[userId].wrong += 1;
-        ctx.reply(`${userName}, your answer is incorrect. 😔`);
+        await ctx.reply(`${userName}, your answer is incorrect. 😔`);
       }
 
+      // Decrease the number of completed questions for this quiz
       completedQuizzes[quizUserId] -= 1;
+
+      // If the quiz is complete, display the results
       if (completedQuizzes[quizUserId] === 0) {
         await displayResults(ctx, quizUserId); // Await the result display
         delete activeQuizzes[quizUserId];
