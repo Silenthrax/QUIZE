@@ -48,7 +48,7 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 
 // ------------- Poll Uploader ---------------- //
-
+/*
 let activeQuizzes = {};
 let activeUsers = false; 
 
@@ -119,11 +119,92 @@ bot.on("poll_answer", async (ctx) => {
         console.log(`${userName} answered incorrectly.`);
       }
       activeUsers = true; 
-      await ctx.reply(quizData)
       break;
     }
   }
 });
+*/
+
+let activeQuizzes = {};
+
+async function pollUploader(ctx, user_id, quizName) {
+  try {
+    const quizDataRaw = await getQuiz(user_id, quizName);
+    const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
+
+    activeQuizzes[user_id] = {
+      quizName,
+      questions: quizData,
+      participants: {},
+    };
+
+    await ctx.replyWithHTML(
+      `📝 <b>Quiz Started:</b> <b>${quizName}</b>\nTotal Questions: ${quizData.length}\nGet ready! 🎯`
+    );
+
+    for (const quiz of quizData) {
+      const { question, options, correctAnswer, explanation } = quiz;
+      const pollOptions = Object.values(options).map(String);
+      const adjustedCorrectAnswer = Math.max(parseInt(correctAnswer, 10) - 1, 0);
+      const pollMessage = await bot.telegram.sendPoll(ctx.chat.id, question, pollOptions, {
+        type: "quiz",
+        correct_option_id: adjustedCorrectAnswer,
+        is_anonymous: false,
+        explanation,
+      });
+
+      quiz.poll_id = pollMessage.poll.id;
+      quiz.correctAnswer = adjustedCorrectAnswer;
+
+      await new Promise((resolve) => setTimeout(resolve, 15000));  // Delay for each question
+    }
+
+    // Listen for poll answers
+    bot.on("poll_answer", async (ctx) => {
+      const { user, poll_id, option_ids } = ctx.pollAnswer;
+      const userId = user.id;
+      const userName = user.first_name || "Anonymous";
+
+      // Loop through active quizzes to find the corresponding quiz
+      for (const [quizUserId, quizData] of Object.entries(activeQuizzes)) {
+        const activeQuiz = quizData.questions.find((quiz) => quiz.poll_id === poll_id);
+
+        if (activeQuiz) {
+          // Initialize the participant data if not already done
+          if (!quizData.participants[userId]) {
+            quizData.participants[userId] = { name: userName, correct: 0, wrong: 0 };
+            console.log(`New participant added: ${userName} (ID: ${userId})`);
+          }
+
+          const userAnswer = option_ids[0];
+          if (userAnswer === activeQuiz.correctAnswer) {
+            quizData.participants[userId].correct += 1;
+            console.log(`${userName} answered correctly.`);
+          } else {
+            quizData.participants[userId].wrong += 1;
+            console.log(`${userName} answered incorrectly.`);
+          }
+          break;  // Break out of the loop once the participant's answer is processed
+        }
+      }
+    });
+
+    // Log the final state before showing the results
+    console.log("Final state before results:", activeQuizzes[user_id]);
+
+    // Show results after all questions are answered
+    await showResults(ctx, user_id);
+
+  } catch (error) {
+    console.error("Error starting the quiz:", error);
+    await ctx.reply("An error occurred while starting the quiz.");
+  }
+}
+
+
+
+
+
 
 
 
