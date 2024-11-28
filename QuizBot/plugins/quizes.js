@@ -47,10 +47,10 @@ function parseQuizData(data) {
 
 // --------------- Multi Quiz ----------------- //
 
-bot.command('multiquiz', async (ctx) => {
+bot.command('addquiz', async (ctx) => {
     const message = ctx.message.reply_to_message;
     if (!message || !message.document) {
-        return ctx.reply("Please reply to a file containing the quiz data with the /multiquiz command.");
+        return ctx.reply("Please reply to a file containing the quiz data with the /addquiz command.");
     }
 
     try {
