@@ -84,7 +84,7 @@ async function pollUploader(ctx, user_id, quizName) {
     console.error("Error uploading polls:", error);
     ctx.reply("An error occurred while uploading the quiz.");
   }
-}}
+});
 
 
 
