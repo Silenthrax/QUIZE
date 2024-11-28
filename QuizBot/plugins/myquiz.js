@@ -52,115 +52,119 @@ bot.action('remove_all_quizzes', async (ctx) => {
 const userResponses = {};
 
 // Poll Upload and Execution Function
-async function pollUploader(ctx, user_id, quizName) {
-  try {
-    // Fetch and parse quiz data
-    const quizDataRaw = await getQuiz(user_id, quizName);
-    const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
-
-    await ctx.replyWithHTML(
-      `📝 <b>Quiz Started</b>: <b>${quizName}</b> 📚\n\nTotal Questions: ${quizData.length}. Get ready! 🎯`
-    );
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Reset user responses for this session
-    Object.keys(userResponses).forEach((userId) => {
-      userResponses[userId] = { name: "", correct: 0, wrong: 0 };
-    });
-
-    // Attach a one-time poll answer listener
-    bot.on("poll_answer", (ctx) => {
-      const { user, option_ids, poll_id } = ctx.pollAnswer;
-      const selectedOption = option_ids[0];
-      const userId = user.id;
-      const userName = user.first_name;
-
-      // Initialize response tracking for the user
-      if (!userResponses[userId]) {
-        userResponses[userId] = { name: userName, correct: 0, wrong: 0 };
-      }
-
-      // Check if the answer is correct
-      const answeredQuiz = quizData.find((q) => q.poll_id === poll_id);
-      if (answeredQuiz) {
-        if (selectedOption === answeredQuiz.correctAnswer) {
-          userResponses[userId].correct += 1;
-        } else {
-          userResponses[userId].wrong += 1;
-        }
-      }
-    });
-
-    // Send quiz questions one by one
-    for (const quiz of quizData) {
-      const { question, options, correctAnswer, explanation } = quiz;
-      const pollOptions = Object.values(options);
-
-      const pollMessage = await ctx.telegram.sendPoll(
-        ctx.chat.id,
-        question,
-        pollOptions,
-        {
-          type: "quiz",
-          correct_option_id: correctAnswer,
-          explanation,
-          is_anonymous: false,
-        }
-      );
-
-      quiz.poll_id = pollMessage.poll.id; // Associate poll ID with the quiz
-      await new Promise((resolve) => setTimeout(resolve, 15000)); // Delay between questions
-    }
-
-    // Summarize and display results after all polls
-    await new Promise((resolve) => setTimeout(resolve, 5000)); // Allow time for final responses
-    const sortedResults = Object.values(userResponses).sort(
-      (a, b) => b.correct - a.correct
-    );
-
-    let resultsMessage = `🎉 <b>Quiz Completed Successfully!</b>\n\n🏆 <b>Results:</b>\n\n`;
-    sortedResults.forEach((user, index) => {
-      resultsMessage += `<b>${index + 1}. ${user.name}</b>\n✅ Correct: ${user.correct}\n❌ Wrong: ${user.wrong}\n\n`;
-    });
-
-    // Handle message size limits
-    if (resultsMessage.length > 4096) {
-      const filePath = "/mnt/data/quiz_results.txt";
-      fs.writeFileSync(filePath, resultsMessage);
-      await ctx.replyWithDocument({
-        source: filePath,
-        filename: "quiz_results.txt",
-      });
-      fs.unlinkSync(filePath);
-    } else {
-      await ctx.replyWithHTML(resultsMessage);
-    }
-
-    await ctx.replyWithHTML("🎯 <b>Thank you for participating!</b> 🥳");
-
-  } catch (error) {
-    console.error("Error uploading poll:", error);
-    await ctx.reply("❌ Failed to upload the quiz. Please try again later.");
-  }
+async function pollUploader(ctx, user_id, quizName){
+  const quizDataRaw = await getQuiz(user_id, quizName);
+  const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
 }
 
-// Mock `getQuiz` Function (Replace with real data-fetch logic)
-async function getQuiz(user_id, name) {
+const userResponses = {}; // Store responses globally
+let activeQuizzes = {}; // Track active quizzes by chat
+
+// Simulate fetching quiz data from an external source
+async function getQuizData(userId, quizName) {
   return [
     {
       question: "What is the capital of France?",
-      options: { 0: "Paris", 1: "Berlin", 2: "Madrid" },
+      options: ["Paris", "Berlin", "Madrid"],
       correctAnswer: 0,
       explanation: "Paris is the capital of France.",
     },
     {
       question: "What is 2 + 2?",
-      options: { 0: "3", 1: "4", 2: "5" },
+      options: ["3", "4", "5"],
       correctAnswer: 1,
-      explanation: "2 + 2 = 4.",
+      explanation: "2 + 2 equals 4.",
     },
   ];
 }
+
+// Function to send a quiz and manage its flow
+async function startQuiz(ctx, userId, quizName) {
+  try {
+    const quizData = await getQuizData(userId, quizName);
+
+    // Reset and initialize user responses for this quiz
+    userResponses[userId] = { correct: 0, wrong: 0 };
+    activeQuizzes[ctx.chat.id] = quizData;
+
+    await ctx.replyWithHTML(
+      `📝 <b>Quiz Started:</b> <b>${quizName}</b>\nTotal Questions: ${quizData.length}\nGet ready! 🎯`
+    );
+
+    for (let i = 0; i < quizData.length; i++) {
+      const { question, options, correctAnswer, explanation } = quizData[i];
+
+      const pollMessage = await ctx.replyWithPoll(question, options, {
+        type: "quiz",
+        correct_option_id: correctAnswer,
+        explanation,
+        is_anonymous: false,
+      });
+
+      // Associate the poll ID with the correct answer in the quiz data
+      quizData[i].poll_id = pollMessage.poll.id;
+
+      // Delay between polls to ensure user gets time to answer
+      await new Promise((resolve) => setTimeout(resolve, 15000));
+    }
+
+    // Wait a little to ensure all answers are processed before results
+    setTimeout(() => displayResults(ctx, userId, quizName), 5000);
+
+  } catch (error) {
+    console.error("Error starting quiz:", error);
+    await ctx.reply("❌ Failed to start the quiz. Please try again.");
+  }
+}
+
+// Handle user responses for each poll
+bot.on("poll_answer", (ctx) => {
+  const { user, poll_id, option_ids } = ctx.pollAnswer;
+  const userId = user.id;
+
+  const activeQuiz = Object.values(activeQuizzes).flat().find(
+    (quiz) => quiz.poll_id === poll_id
+  );
+
+  if (activeQuiz) {
+    const correctOption = activeQuiz.correctAnswer;
+    const userAnswer = option_ids[0];
+
+    if (!userResponses[userId]) {
+      userResponses[userId] = { correct: 0, wrong: 0 };
+    }
+
+    if (userAnswer === correctOption) {
+      userResponses[userId].correct += 1;
+    } else {
+      userResponses[userId].wrong += 1;
+    }
+  }
+});
+
+// Function to display quiz results
+async function displayResults(ctx, userId, quizName) {
+  const userResult = userResponses[userId];
+  const resultsMessage = `🎉 <b>Quiz Completed: ${quizName}</b>\n\n✅ Correct: ${userResult.correct}\n❌ Wrong: ${userResult.wrong}\n\n🎯 <b>Thank you for participating!</b> 🥳`;
+
+  if (resultsMessage.length > 4096) {
+    const filePath = "/mnt/data/quiz_results.txt";
+    fs.writeFileSync(filePath, resultsMessage);
+    await ctx.replyWithDocument({ source: filePath, filename: "quiz_results.txt" });
+    fs.unlinkSync(filePath);
+  } else {
+    await ctx.replyWithHTML(resultsMessage);
+  }
+}
+
+// Command to initiate the quiz
+bot.command("start_quiz", (ctx) => {
+  const userId = ctx.from.id;
+  startQuiz(ctx, userId, "Sample Quiz");
+});
+
+
+
 
 
 
