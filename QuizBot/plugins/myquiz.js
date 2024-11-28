@@ -119,7 +119,7 @@ bot.on("poll_answer", (ctx) => {
         console.log(`${userName} answered incorrectly.`);
       }
       activeUsers = true; 
-      console.log(quizData)
+      await ctx.reply(quizData)
       break;
     }
   }
