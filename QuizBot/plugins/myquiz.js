@@ -102,6 +102,7 @@ async function pollUploader(ctx, user_id, name) {
     // Wait for all poll responses to accumulate
     await new Promise((resolve) => setTimeout(resolve, 20000));
 
+    console.log(userResponses)
     const sortedResults = Object.values(userResponses)
       .sort((a, b) => b.correct - a.correct);
 
