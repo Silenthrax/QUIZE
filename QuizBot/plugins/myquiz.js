@@ -51,11 +51,42 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 
 
-// Poll Upload and Execution Function
-async function pollUploader(ctx, user_id, quizName){
-  const quizDataRaw = await getQuiz(user_id, quizName);
-  const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
+
+async function pollUploader(ctx, user_id, quizName) {
+  try {
+    const quizDataRaw = await getQuiz(user_id, quizName);
+    const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
+
+    for (const quiz of quizData) {
+      const { question, options, correctAnswer, explanation } = quiz;
+      const pollOptions = Object.values(options).map(String);
+
+      const pollMessage = await bot.telegram.sendPoll(ctx.chat.id, question, pollOptions, {
+        type: "quiz",
+        correct_option_id: parseInt(correctAnswer, 10), // Ensure correctAnswer is an index
+        explanation,
+        is_anonymous: false,
+      });
+
+      ctx.reply(`${question}\nOptions: ${pollOptions}\nCorrect Answer Index: ${correctAnswer}\nExplanation: ${explanation}`);
+      
+      quiz.poll_id = pollMessage.poll.id;
+
+      await new Promise((resolve) => setTimeout(resolve, 15000)); // Delay between polls
+    }
+  } catch (error) {
+    console.error("Error uploading polls:", error);
+    ctx.reply("An error occurred while uploading the quiz.");
+  }
 }
+
+
+
+
+
+
+
+  
 
 const userResponses = {}; // Store responses globally
 let activeQuizzes = {}; // Track active quizzes by chat
