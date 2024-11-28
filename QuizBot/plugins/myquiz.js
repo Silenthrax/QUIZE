@@ -132,6 +132,67 @@ async function pollUploader(ctx, user_id, name) {
 
 
 
+let results = { correct: 0, incorrect: 0 }; // Store user results
+let totalPolls = 2; // Number of polls in the quiz
+let answeredPolls = 0; // Track how many polls have been answered
+
+bot.command('poll', async (ctx) => {
+  results = { correct: 0, incorrect: 0 };
+  answeredPolls = 0;
+
+  // First Quiz Poll
+  await ctx.replyWithPoll('What is the capital of France?', ['Paris', 'London', 'Berlin'], {
+    is_anonymous: false,
+    type: 'quiz',
+    correct_option_id: 0, // Paris is the correct answer
+  });
+
+  // Wait for 2 seconds before sending the next poll
+  setTimeout(async () => {
+    // Second Quiz Poll
+    await ctx.replyWithPoll('What is 2 + 2?', ['3', '4', '5'], {
+      is_anonymous: false,
+      type: 'quiz',
+      correct_option_id: 1, // 4 is the correct answer
+    });
+  }, 2000);
+});
+
+// Handle Poll Answers
+bot.on('poll_answer', (ctx) => {
+  const { option_ids, poll_id } = ctx.update.poll_answer;
+  answeredPolls++;
+
+  // Check if the answer is correct based on poll_id
+  const correctAnswers = {
+    0: 0, // First poll's correct option
+    1: 1, // Second poll's correct option
+  };
+
+  const correctOption = correctAnswers[answeredPolls - 1]; // -1 because polls are answered sequentially
+  const userAnswer = option_ids[0];
+
+  if (userAnswer === correctOption) {
+    results.correct += 1;
+  } else {
+    results.incorrect += 1;
+  }
+
+  // End quiz automatically after both polls are answered
+  if (answeredPolls === totalPolls) {
+    ctx.telegram.sendMessage(
+      ctx.update.poll_answer.user.id,
+      `Quiz Over! \nCorrect Answers: ${results.correct}\nIncorrect Answers: ${results.incorrect}`
+    );
+  }
+});
+
+
+
+
+
+
+
 
 
 
