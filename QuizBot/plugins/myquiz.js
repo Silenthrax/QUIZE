@@ -49,9 +49,9 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 // ------------- Poll Uploader ---------------- //
 
-const userResponses = {};
-const activeQuizzes = {};
-const completedQuizzes = {};
+const fs = require("fs");
+
+let activeQuizzes = {};
 
 async function pollUploader(ctx, user_id, quizName) {
   try {
@@ -65,14 +65,12 @@ async function pollUploader(ctx, user_id, quizName) {
     activeQuizzes[user_id] = {
       quizName,
       questions: quizData,
-      participants: {}, // To track users' answers
+      participants: {},
     };
 
     for (const quiz of quizData) {
       const { question, options, correctAnswer, explanation } = quiz;
       const pollOptions = Object.values(options).map(String);
-
-      // Adjust the correct answer index by subtracting 1
       const adjustedCorrectAnswer = Math.max(parseInt(correctAnswer, 10) - 1, 0);
 
       const pollMessage = await bot.telegram.sendPoll(ctx.chat.id, question, pollOptions, {
@@ -85,35 +83,32 @@ async function pollUploader(ctx, user_id, quizName) {
       quiz.poll_id = pollMessage.poll.id;
       quiz.correctAnswer = adjustedCorrectAnswer;
 
-      await new Promise((resolve) => setTimeout(resolve, 15000)); // Delay for next poll
+      await new Promise((resolve) => setTimeout(resolve, 15000));
     }
 
-    // Show results after all questions are done
     await showResults(ctx, user_id);
   } catch (error) {
     console.error("Error starting the quiz:", error);
-    ctx.reply("An error occurred while starting the quiz.");
+    await ctx.reply("An error occurred while starting the quiz.");
   }
 }
-
 
 bot.on("poll_answer", (ctx) => {
   const { user, poll_id, option_ids } = ctx.pollAnswer;
   const userId = user.id;
   const userName = user.first_name;
 
-  for (const quizData of Object.values(activeQuizzes)) {
+  console.log(`Poll answer received from ${userName} (ID: ${userId}), Poll ID: ${poll_id}, Answer: ${option_ids[0]}`);
+
+  for (const [quizUserId, quizData] of Object.entries(activeQuizzes)) {
     const activeQuiz = quizData.questions.find((quiz) => quiz.poll_id === poll_id);
     if (activeQuiz) {
-      // Initialize participant if not already added
       if (!quizData.participants[userId]) {
         quizData.participants[userId] = { name: userName, correct: 0, wrong: 0 };
       }
 
       const userAnswer = option_ids[0];
-      const correctOption = activeQuiz.correctAnswer;
-
-      if (userAnswer === correctOption) {
+      if (userAnswer === activeQuiz.correctAnswer) {
         quizData.participants[userId].correct += 1;
       } else {
         quizData.participants[userId].wrong += 1;
@@ -123,21 +118,21 @@ bot.on("poll_answer", (ctx) => {
   }
 });
 
-
 async function showResults(ctx, quizOwnerId) {
   const quizData = activeQuizzes[quizOwnerId];
+
   if (!quizData) {
-    return ctx.reply("No quiz data found.");
+    return await ctx.reply("No quiz data found.");
   }
 
   const participants = Object.values(quizData.participants);
   if (participants.length === 0) {
-    return ctx.replyWithHTML(`⚠️ No one participated in the quiz <b>${quizData.quizName}</b>.`);
+    return await ctx.replyWithHTML(`⚠️ No one participated in the quiz <b>${quizData.quizName}</b>.`);
   }
 
   const sortedParticipants = participants.sort((a, b) => b.correct - a.correct);
-  let resultsMessage = `🎉 <b>Quiz Completed:</b> ${quizData.quizName}\n\n`;
 
+  let resultsMessage = `🎉 <b>Quiz Completed:</b> ${quizData.quizName}\n\n`;
   resultsMessage += sortedParticipants
     .map((p, i) => {
       const rankEmoji = i === 0 ? "🏆" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🎖️";
@@ -149,15 +144,19 @@ async function showResults(ctx, quizOwnerId) {
 
   if (resultsMessage.length > 4096) {
     const filePath = "/mnt/data/quiz_results.txt";
-    require("fs").writeFileSync(filePath, resultsMessage);
+    fs.writeFileSync(filePath, resultsMessage);
     await ctx.replyWithDocument({ source: filePath, filename: "quiz_results.txt" });
-    require("fs").unlinkSync(filePath);
+    fs.unlinkSync(filePath);
   } else {
     await ctx.replyWithHTML(resultsMessage);
   }
 
   delete activeQuizzes[quizOwnerId];
 }
+
+
+
+
 
 
 
