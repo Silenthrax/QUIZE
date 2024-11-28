@@ -110,8 +110,10 @@ bot.on("poll_answer", async (ctx) => {
 
       if (userAnswer === correctOption) {
         quizData.participants[userId].correct += 1;
+        console.log("correct")
       } else {
         quizData.participants[userId].wrong += 1;
+        console.log("wrong")
       }
 
       completedQuizzes[quizUserId] -= 1;
