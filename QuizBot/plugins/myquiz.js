@@ -53,7 +53,7 @@ const userResponses = {};
 const activeQuizzes = {};
 const completedQuizzes = {};
 
-async function startQuiz(ctx, user_id, quizName) {
+async function pollUploader(ctx, user_id, quizName) {
   try {
     const quizDataRaw = await getQuiz(user_id, quizName);
     const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
