@@ -91,30 +91,46 @@ async function pollUploader(ctx, user_id, quizName) {
   }
 }
 
+
 bot.on("poll_answer", (ctx) => {
   const { user, poll_id, option_ids } = ctx.pollAnswer;
   const userId = user.id;
-  const userName = user.first_name;
+  const userName = user.first_name || "Anonymous";
 
-  console.log(`Poll answer received from ${userName} (ID: ${userId}), Poll ID: ${poll_id}, Answer: ${option_ids[0]}`);
+  console.log(
+    `Poll answer received from ${userName} (ID: ${userId}), Poll ID: ${poll_id}, Answer: ${option_ids[0]}`
+  );
+
+  let participantAdded = false;
 
   for (const [quizUserId, quizData] of Object.entries(activeQuizzes)) {
     const activeQuiz = quizData.questions.find((quiz) => quiz.poll_id === poll_id);
+
     if (activeQuiz) {
       if (!quizData.participants[userId]) {
         quizData.participants[userId] = { name: userName, correct: 0, wrong: 0 };
+        console.log(`New participant added: ${userName} (ID: ${userId})`);
       }
 
       const userAnswer = option_ids[0];
       if (userAnswer === activeQuiz.correctAnswer) {
         quizData.participants[userId].correct += 1;
+        console.log(`${userName} answered correctly.`);
       } else {
         quizData.participants[userId].wrong += 1;
+        console.log(`${userName} answered incorrectly.`);
       }
-      break;
+
+      participantAdded = true;
+      break; // Break loop after processing the matching poll
     }
   }
+
+  if (!participantAdded) {
+    console.error(`No matching quiz found for poll ID: ${poll_id}`);
+  }
 });
+
 
 async function showResults(ctx, quizOwnerId) {
   const quizData = activeQuizzes[quizOwnerId];
