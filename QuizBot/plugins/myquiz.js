@@ -96,7 +96,7 @@ async function pollUploader(ctx, user_id, quizName) {
 
 
 
-bot.on("poll_answer", (ctx) => {
+bot.on("poll_answer", async (ctx) => {
   const { user, poll_id, option_ids } = ctx.pollAnswer;
   const userId = user.id;
   const userName = user.first_name || "Anonymous";
