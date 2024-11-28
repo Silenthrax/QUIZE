@@ -66,7 +66,7 @@ async function pollUploader(ctx, user_id, name) {
           userResponses[userId] = { name: user.first_name, correct: 0, wrong: 0 };
         }
 
-        const questionIndex = option_ids[0];
+        const questionIndex = Object.keys(userResponses[userId]).length - 1;
         const correctOptionIndex = quizData[questionIndex]?.correctAnswer ?? -1;
 
         if (correctOptionIndex === option_ids[0]) {
@@ -78,9 +78,10 @@ async function pollUploader(ctx, user_id, name) {
     });
 
     for (let i = 0; i < quizData.length; i++) {
-      const { question = "Demo", options = ["1", "2", "3", "4"], correctAnswer = 0 } = quizData[i];
+      const { question = "Demo", options = [], correctAnswer = 0 } = quizData[i];
+      const formattedOptions = options.map((opt) => opt.toString());
 
-      await ctx.sendPoll(question, options, {
+      await ctx.sendPoll(question, formattedOptions, {
         type: "quiz",
         correct_option_id: correctAnswer,
         is_anonymous: false,
@@ -95,7 +96,8 @@ async function pollUploader(ctx, user_id, name) {
     }
 
     const sortedResults = Object.values(userResponses).sort((a, b) => b.correct - a.correct);
-    let resultsMessage = "🎉 **Quiz Completed Successfully!** 🎉\n\n🏆 **Results:**\n\n";
+    let resultsMessage = "🎉 **Quiz Completed Successfully!** 🎉\n\n";
+    resultsMessage += `📊 **Total Participants:** ${Object.keys(userResponses).length}\n\n🏆 **Results:**\n\n`;
 
     sortedResults.forEach((user, index) => {
       resultsMessage += `**${index + 1}. ${user.name}** - ✅ Correct: ${user.correct}, ❌ Wrong: ${user.wrong}\n`;
@@ -117,6 +119,7 @@ async function pollUploader(ctx, user_id, name) {
     await ctx.reply("❌ Failed to upload the poll. Please try again.");
   }
 }
+
 
 
 
