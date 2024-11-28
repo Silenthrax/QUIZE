@@ -53,7 +53,7 @@ const userResponses = {};
 const activeQuizzes = {};
 const completedQuizzes = {};
 
-async function pollUploader(ctx, user_id, quizName) {
+async function startQuiz(ctx, user_id, quizName) {
   try {
     const quizDataRaw = await getQuiz(user_id, quizName);
     const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
@@ -62,7 +62,11 @@ async function pollUploader(ctx, user_id, quizName) {
       `📝 <b>Quiz Started:</b> <b>${quizName}</b>\nTotal Questions: ${quizData.length}\nGet ready! 🎯`
     );
 
-    activeQuizzes[user_id] = { quizName, questions: quizData, participants: {} };
+    activeQuizzes[user_id] = {
+      quizName,
+      questions: quizData,
+      participants: {}
+    };
     completedQuizzes[user_id] = quizData.length;
 
     for (const quiz of quizData) {
@@ -79,11 +83,11 @@ async function pollUploader(ctx, user_id, quizName) {
       quiz.poll_id = pollMessage.poll.id;
       quiz.correctAnswer = parseInt(correctAnswer, 10);
 
-      await new Promise((resolve) => setTimeout(resolve, 15000));
+      await new Promise((resolve) => setTimeout(resolve, 15000)); // Waiting for poll completion
     }
   } catch (error) {
-    console.error("Error uploading polls:", error);
-    ctx.reply("An error occurred while uploading the quiz.");
+    console.error("Error starting the quiz:", error);
+    ctx.reply("An error occurred while starting the quiz.");
   }
 }
 
@@ -93,7 +97,6 @@ bot.on("poll_answer", async (ctx) => {
   const userName = user.first_name;
 
   console.log(`Poll answer received from ${userName} (ID: ${userId}):`, option_ids);
-
 
   for (const [quizUserId, quizData] of Object.entries(activeQuizzes)) {
     const activeQuiz = quizData.questions.find((quiz) => quiz.poll_id === poll_id);
@@ -106,15 +109,17 @@ bot.on("poll_answer", async (ctx) => {
       const correctOption = activeQuiz.correctAnswer;
 
       if (userAnswer === correctOption) {
-        quizData.participants[userId].correct += 1;    
+        quizData.participants[userId].correct += 1;
+        await ctx.reply(`${userName}, your answer is correct! 🎉`);
       } else {
-        quizData.participants[userId].wrong += 1;     
+        quizData.participants[userId].wrong += 1;
+        await ctx.reply(`${userName}, your answer is incorrect. 😔`);
       }
 
       completedQuizzes[quizUserId] -= 1;
 
       if (completedQuizzes[quizUserId] === 0) {
-        await displayResults(ctx, quizUserId);
+        await showResults(ctx, quizUserId);
         delete activeQuizzes[quizUserId];
         delete completedQuizzes[quizUserId];
       }
@@ -123,7 +128,7 @@ bot.on("poll_answer", async (ctx) => {
   }
 });
 
-async function displayResults(ctx, quizOwnerId) {
+async function showResults(ctx, quizOwnerId) {
   const quizData = activeQuizzes[quizOwnerId];
   if (!quizData) {
     return ctx.reply("No quiz data found.");
@@ -156,8 +161,5 @@ async function displayResults(ctx, quizOwnerId) {
 
 
 
-
-
 module.exports = { pollUploader };
-
 
