@@ -83,17 +83,22 @@ bot.command('addquiz', async (ctx) => {
 
 bot.command("removequiz", async (ctx) => {
     try {
+        const user_id = ctx.from.id
         const quizName = ctx.message.text.split(" ").slice(1).join(" ");
         if (!quizName) {
             return ctx.reply("⚠️ Please provide the quiz name. Usage: /removequiz <quiz_name>");
         }
 
+        const quizData = await getQuiz(user_id, quizName)
+        if(!quizData){
+            return ctx.reply("Quiz Not Found!! ");
+        }
         await ctx.reply(`❓ Are you sure you want to delete the quiz *"${quizName}"*?`, {
             parse_mode: "Markdown",
             reply_markup: {
                 inline_keyboard: [
                     [
-                        { text: `🗑️ Delete "${quizName}"`, callback_data: `removequiz_yes:${quizName}` },
+                        { text: "🗑️ Delete", callback_data: `removequiz_yes:${quizName}` },
                         { text: "❌ Cancel", callback_data: `removequiz_no` }
                     ]
                 ]
