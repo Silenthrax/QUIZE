@@ -81,63 +81,63 @@ bot.command('addquiz', async (ctx) => {
 
 // --------------- Remove Quiz -------------- //
 
-bot.command("/removequiz", async (ctx) => {
+bot.command("removequiz", async (ctx) => {
     try {
-        const user_id = ctx.from.id;
-        const args = ctx.message.text.split(" ");
-        const name = args.slice(1).join(" "); // Extract quiz name after command
-
-        if (!name) {
-            return ctx.reply("Please provide the quiz name. Usage: /removequiz <quiz_name>");
+        const quizName = ctx.message.text.split(" ").slice(1).join(" ");
+        if (!quizName) {
+            return ctx.reply("⚠️ Please provide the quiz name. Usage: /removequiz <quiz_name>");
         }
 
-        await ctx.reply(`Are you sure you want to delete the quiz "${name}"?`, {
+        await ctx.reply(`❓ Are you sure you want to delete the quiz *"${quizName}"*?`, {
+            parse_mode: "Markdown",
             reply_markup: {
                 inline_keyboard: [
                     [
-                        { text: "Yes", callback_data: `removequiz_yes:${user_id}:${name}` },
-                        { text: "No", callback_data: `removequiz_no:${user_id}` }
+                        { text: `🗑️ Delete "${quizName}"`, callback_data: `removequiz_yes:${quizName}` },
+                        { text: "❌ Cancel", callback_data: `removequiz_no` }
                     ]
                 ]
-            }
+            },
+            reply_to_message_id: ctx.message.message_id
         });
     } catch (error) {
         console.error(error);
-        ctx.reply("An error occurred while processing your request.");
+        ctx.reply("🚨 An error occurred while processing your request.");
     }
 });
 
-bot.action(/^removequiz_yes:(\d+):(.+)/, async (ctx) => {
-    const [initiating_user_id, quizName] = ctx.match.slice(1);
+// ---------------- Actions ------------------ //
+bot.action(/^removequiz_yes:(.+)/, async (ctx) => {
+    const quizName = ctx.match[1];
+    const initiatingUserId = ctx.callbackQuery.message.reply_to_message.from.id;
+    const clickerId = ctx.from.id;
 
-    if (ctx.from.id.toString() !== initiating_user_id) {
-        return ctx.answerCbQuery("This action is not for you.", { show_alert: true });
+    if (clickerId !== initiatingUserId) {
+        return ctx.answerCbQuery("⛔ This action is not for you.", { show_alert: true });
     }
 
-    const success = await deleteQuiz(initiating_user_id, quizName);
-    await ctx.answerCbQuery("Successfully Deleted...");
+    const success = await deleteQuiz(initiatingUserId, quizName);
+    await ctx.answerCbQuery(success ? "✅ Successfully deleted." : "❌ Failed to delete.");
 
-    if (success) {
-        await ctx.editMessageText(`The quiz "${quizName}" has been deleted.`);
-    } else {
-        await ctx.editMessageText(`Failed to delete the quiz "${quizName}". Please try again.`);
-    }
+    await ctx.editMessageText(
+        success
+            ? `🗑️ The quiz *"${quizName}"* has been deleted.`
+            : `⚠️ Failed to delete the quiz *"${quizName}"*. Please try again.`,
+        { parse_mode: "Markdown" }
+    );
 });
 
-bot.action(/^removequiz_no:(\d+)/, async (ctx) => {
-    const initiating_user_id = ctx.match[1];
+bot.action("removequiz_no", async (ctx) => {
+    const initiatingUserId = ctx.callbackQuery.message.reply_to_message.from.id;
+    const clickerId = ctx.from.id;
 
-    if (ctx.from.id.toString() !== initiating_user_id) {
-        return ctx.answerCbQuery("This action is not for you.", { show_alert: true });
+    if (clickerId !== initiatingUserId) {
+        return ctx.answerCbQuery("⛔ This action is not for you.", { show_alert: true });
     }
 
-    await ctx.answerCbQuery("Quiz Deletion Canceld.");
-    await ctx.editMessageText("Successfully Quiz deletion canceled.");
-    
+    await ctx.answerCbQuery("❌ Quiz deletion canceled.");
+    await ctx.editMessageText("❌ Quiz deletion has been successfully canceled.");
 });
-
-
-
 
 
 
