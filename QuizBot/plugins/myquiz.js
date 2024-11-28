@@ -65,32 +65,30 @@ async function pollUploader(ctx, user_id, quizName) {
     activeQuizzes[user_id] = {
       quizName,
       questions: quizData,
-      participants: {},
-      totalQuestions: quizData.length,
+      participants: {}, // To track users' answers
     };
-
-    completedQuizzes[user_id] = quizData.length;
 
     for (const quiz of quizData) {
       const { question, options, correctAnswer, explanation } = quiz;
       const pollOptions = Object.values(options).map(String);
 
-      // Adjust the correct answer index by subtracting 1, ensuring it doesn't go below 0.
+      // Adjust the correct answer index by subtracting 1
       const adjustedCorrectAnswer = Math.max(parseInt(correctAnswer, 10) - 1, 0);
 
       const pollMessage = await bot.telegram.sendPoll(ctx.chat.id, question, pollOptions, {
         type: "quiz",
         correct_option_id: adjustedCorrectAnswer,
         is_anonymous: false,
-        explanation: explanation,
+        explanation,
       });
 
       quiz.poll_id = pollMessage.poll.id;
       quiz.correctAnswer = adjustedCorrectAnswer;
 
-      await new Promise((resolve) => setTimeout(resolve, 15000));
+      await new Promise((resolve) => setTimeout(resolve, 15000)); // Delay for next poll
     }
 
+    // Show results after all questions are done
     await showResults(ctx, user_id);
   } catch (error) {
     console.error("Error starting the quiz:", error);
@@ -98,14 +96,16 @@ async function pollUploader(ctx, user_id, quizName) {
   }
 }
 
-bot.on("poll_answer", async (ctx) => {
+
+bot.on("poll_answer", (ctx) => {
   const { user, poll_id, option_ids } = ctx.pollAnswer;
   const userId = user.id;
   const userName = user.first_name;
 
-  for (const [quizUserId, quizData] of Object.entries(activeQuizzes)) {
+  for (const quizData of Object.values(activeQuizzes)) {
     const activeQuiz = quizData.questions.find((quiz) => quiz.poll_id === poll_id);
     if (activeQuiz) {
+      // Initialize participant if not already added
       if (!quizData.participants[userId]) {
         quizData.participants[userId] = { name: userName, correct: 0, wrong: 0 };
       }
@@ -118,16 +118,11 @@ bot.on("poll_answer", async (ctx) => {
       } else {
         quizData.participants[userId].wrong += 1;
       }
-
-      completedQuizzes[quizUserId] -= 1;
-
-      if (completedQuizzes[quizUserId] === 0) {
-        //await showResults(ctx, quizUserId);
-      }
       break;
     }
   }
 });
+
 
 async function showResults(ctx, quizOwnerId) {
   const quizData = activeQuizzes[quizOwnerId];
@@ -141,8 +136,8 @@ async function showResults(ctx, quizOwnerId) {
   }
 
   const sortedParticipants = participants.sort((a, b) => b.correct - a.correct);
-
   let resultsMessage = `🎉 <b>Quiz Completed:</b> ${quizData.quizName}\n\n`;
+
   resultsMessage += sortedParticipants
     .map((p, i) => {
       const rankEmoji = i === 0 ? "🏆" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🎖️";
@@ -162,12 +157,7 @@ async function showResults(ctx, quizOwnerId) {
   }
 
   delete activeQuizzes[quizOwnerId];
-  delete completedQuizzes[quizOwnerId];
 }
-
-
-
-
 
 
 
