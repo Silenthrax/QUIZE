@@ -117,7 +117,7 @@ bot.on("poll_answer", async (ctx) => {
       completedQuizzes[quizUserId] -= 1;
 
       if (completedQuizzes[quizUserId] === 0) {
-        await showResults(ctx, quizUserId);
+       // await showResults(ctx, quizUserId);
         delete activeQuizzes[quizUserId];
         delete completedQuizzes[quizUserId];
       }
