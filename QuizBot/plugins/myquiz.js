@@ -49,23 +49,26 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 // ------------- Poll Uploader ---------------- //
 
-const userResponses = {};
+const userResponses = [];
 
 async function pollUploader(ctx, user_id, name) {
   try {
     const quizDataRaw = await getQuiz(user_id, name);
     const quizData = typeof quizDataRaw === "string" ? JSON.parse(quizDataRaw) : quizDataRaw;
 
+    // Notify user that quiz has started
     await ctx.replyWithHTML(
       `📝 <b>Quiz Started</b>: <b>${name}</b> 📚\n\nTotal Questions: ${quizData.length}. Get ready! 🎯`
     );
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
+    // Process each quiz question
     for (const quiz of quizData) {
       const { question = "Demo", options, correctAnswer, explanation } = quiz;
 
       const pollOptions = Object.values(options).map(String);
 
+      // Send the poll
       const pollMessage = await bot.telegram.sendPoll(ctx.chat.id, question, pollOptions, {
         type: "quiz",
         correct_option_id: correctAnswer,
@@ -74,38 +77,48 @@ async function pollUploader(ctx, user_id, name) {
       });
 
       quiz.poll_id = pollMessage.poll.id;
-      await new Promise((resolve) => setTimeout(resolve, 15000));
+      await new Promise((resolve) => setTimeout(resolve, 15000)); // Wait for 15 seconds between polls
     }
 
-    bot.on("poll_answer", (pollAnswer) => {
-      const { user, option_ids, poll_id } = pollAnswer;
-      const userId = user.id;
-      const questionIndex = quizData.findIndex((quiz) => quiz.poll_id === poll_id);
-      const correctOptionIndex = quizData[questionIndex]?.correctAnswer;
+    // Handle poll answers
+    bot.on("poll_answer", (ctx) => {
+      const userId = ctx.pollAnswer.user.id;
+      const selectedOption = ctx.pollAnswer.option_ids[0];
 
+      // Initialize user response if not already present
       if (!userResponses[userId]) {
-        userResponses[userId] = { name: user.first_name, correct: 0, wrong: 0 };
+        userResponses[userId] = { name: ctx.pollAnswer.user.first_name, correct: 0, wrong: 0 };
       }
 
-      if (option_ids.includes(correctOptionIndex)) {
+      // Increment correct or wrong count based on answer
+      const quiz = quizData.find((q) => q.poll_id === ctx.pollAnswer.poll_id); // Get the correct quiz
+      if (selectedOption === quiz.correctAnswer) {
         userResponses[userId].correct += 1;
       } else {
         userResponses[userId].wrong += 1;
       }
     });
-    
-    if (Object.keys(userResponses).length === 0) {
+
+    // Wait for all responses (could be improved with better time control)
+    await new Promise((resolve) => setTimeout(resolve, 20000));
+
+    // If no one responded
+    if (userResponses.length === 0) {
       await ctx.replyWithHTML("📊 <b>No participants responded to the quiz.</b>");
       return;
     }
 
-    const sortedResults = Object.values(userResponses).sort((a, b) => b.correct - a.correct);
-    let resultsMessage = "🎉 <b>Quiz Completed Successfully!</b>\n\n🏆 <b>Results:</b>\n\n";
+    // Sort results by correct answers (descending)
+    const sortedResults = Object.values(userResponses)
+      .sort((a, b) => b.correct - a.correct);
 
+    // Prepare results message
+    let resultsMessage = "🎉 <b>Quiz Completed Successfully!</b>\n\n🏆 <b>Results:</b>\n\n";
     sortedResults.forEach((user, index) => {
       resultsMessage += `<b>${index + 1}. ${user.name}</b>\n✅ Correct: ${user.correct}\n❌ Wrong: ${user.wrong}\n\n`;
     });
 
+    // Handle large results output (more than 4096 characters)
     if (resultsMessage.length > 4096) {
       const filePath = "/mnt/data/quiz_results.txt";
       fs.writeFileSync(filePath, resultsMessage);
@@ -122,47 +135,6 @@ async function pollUploader(ctx, user_id, name) {
     await ctx.reply("❌ Failed to upload the poll. Please try again.");
   }
 }
-
-
-
-
-const userScores = {};
-
-// /poll command to create a quiz
-bot.command('poll', (ctx) => {
-  ctx.telegram.sendPoll(
-    ctx.chat.id,
-    'Which is the capital of France?',
-    ['Paris', 'Berlin', 'Madrid'],
-    {
-      type: 'quiz',
-      correct_option_id: 0,
-      explanation: 'Paris is the capital of France.',
-      is_anonymous: false,  // Ensures we can track users
-    }
-  );
-});
-
-// Listen for poll answers
-bot.on('poll_answer', (ctx) => {
-  const userId = ctx.pollAnswer.user.id;
-  const selectedOption = ctx.pollAnswer.option_ids[0];
-  const correctOption = 0; // Paris
-
-  // Initialize user score if not already present
-  if (!userScores[userId]) {
-    userScores[userId] = { correct: 0, wrong: 0 };
-  }
-
-  if (selectedOption === correctOption) {
-    userScores[userId].correct += 1;
-    ctx.telegram.sendMessage(ctx.pollAnswer.user.id, `Correct! ✅ Total Correct: ${userScores[userId].correct}`);
-  } else {
-    userScores[userId].wrong += 1;
-    ctx.telegram.sendMessage(ctx.pollAnswer.user.id, `Wrong! ❌ Total Wrong: ${userScores[userId].wrong}`);
-  }
-});
-
 
 
 
