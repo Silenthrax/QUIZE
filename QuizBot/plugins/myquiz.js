@@ -61,7 +61,7 @@ async function pollUploader(ctx, user_id, name) {
     );
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Attach the poll_answer listener before sending polls
+    // Set up the poll answer listener once
     bot.on("poll_answer", async (ctx) => {
       const userId = ctx.pollAnswer.user.id;
       const name = ctx.pollAnswer.user.first_name;
@@ -72,6 +72,7 @@ async function pollUploader(ctx, user_id, name) {
         userResponses[userId] = { name: name, correct: 0, wrong: 0 };
       }
 
+      // Find the quiz question based on poll ID
       const quiz = quizData.find((q) => q.poll_id === ctx.pollAnswer.poll_id);
       if (quiz) {
         if (selectedOption === quiz.correctAnswer) {
@@ -84,6 +85,7 @@ async function pollUploader(ctx, user_id, name) {
       }
     });
 
+    // Loop through each quiz question
     for (const quiz of quizData) {
       const { question, options, correctAnswer, explanation } = quiz;
       const pollOptions = Object.values(options).map(String);
@@ -96,13 +98,11 @@ async function pollUploader(ctx, user_id, name) {
       });
 
       quiz.poll_id = pollMessage.poll.id;
+
       await new Promise((resolve) => setTimeout(resolve, 15000)); // Delay between polls
     }
 
-    // Wait for all poll responses to accumulate
-    await new Promise((resolve) => setTimeout(resolve, 20000));
-
-    console.log(userResponses)
+    console.log(userResponses);
     const sortedResults = Object.values(userResponses)
       .sort((a, b) => b.correct - a.correct);
 
@@ -127,6 +127,11 @@ async function pollUploader(ctx, user_id, name) {
     await ctx.reply("❌ Failed to upload the poll. Please try again.");
   }
 }
+
+
+
+
+
 
 
 
