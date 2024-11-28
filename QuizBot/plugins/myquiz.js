@@ -49,7 +49,7 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 // ------------- Poll Uploader ---------------- //
 
-const userResponses = {};
+
 
 // Poll Upload and Execution Function
 async function pollUploader(ctx, user_id, quizName){
