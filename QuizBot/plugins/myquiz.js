@@ -50,6 +50,7 @@ bot.action('remove_all_quizzes', async (ctx) => {
 // ------------- Poll Uploader ---------------- //
 
 let activeQuizzes = {};
+let activeUsers = false; 
 
 async function pollUploader(ctx, user_id, quizName) {
   try {
@@ -83,8 +84,10 @@ async function pollUploader(ctx, user_id, quizName) {
       await new Promise((resolve) => setTimeout(resolve, 15000));
     }
 
-  //  console.log("Final state before results:", activeQuizzes[user_id]);
- //   await showResults(ctx, user_id);
+    console.log("Final state before results:", activeQuizzes[user_id]);
+    if(activeUsers){
+     await showResults(ctx, user_id);
+    }
   } catch (error) {
     console.error("Error starting the quiz:", error);
     await ctx.reply("An error occurred while starting the quiz.");
@@ -115,6 +118,7 @@ bot.on("poll_answer", (ctx) => {
         quizData.participants[userId].wrong += 1;
         console.log(`${userName} answered incorrectly.`);
       }
+      activeUsers = true; 
       console.log(quizData)
       break;
     }
