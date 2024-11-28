@@ -79,7 +79,7 @@ async function pollUploader(ctx, user_id, quizName) {
       quiz.poll_id = pollMessage.poll.id;
       quiz.correctAnswer = parseInt(correctAnswer, 10);
 
-      await new Promise((resolve) => setTimeout(resolve, 15000)); // Waiting for poll completion
+      await new Promise((resolve) => setTimeout(resolve, 15000));
     }
   } catch (error) {
     console.error("Error uploading polls:", error);
@@ -94,17 +94,17 @@ bot.on("poll_answer", async (ctx) => {
 
   console.log(`Poll answer received from ${userName} (ID: ${userId}):`, option_ids);
 
-  // Process the poll answer for the specific quiz
+
   for (const [quizUserId, quizData] of Object.entries(activeQuizzes)) {
     const activeQuiz = quizData.questions.find((quiz) => quiz.poll_id === poll_id);
     if (activeQuiz) {
       if (!quizData.participants[userId]) {
         quizData.participants[userId] = { name: userName, correct: 0, wrong: 0 };
       }
+
       const userAnswer = option_ids[0];
       const correctOption = activeQuiz.correctAnswer;
 
-      // Check if the answer is correct
       if (userAnswer === correctOption) {
         quizData.participants[userId].correct += 1;
         await ctx.reply(`${userName}, your answer is correct! 🎉`);
@@ -113,12 +113,10 @@ bot.on("poll_answer", async (ctx) => {
         await ctx.reply(`${userName}, your answer is incorrect. 😔`);
       }
 
-      // Decrease the number of completed questions for this quiz
       completedQuizzes[quizUserId] -= 1;
 
-      // If the quiz is complete, display the results
       if (completedQuizzes[quizUserId] === 0) {
-        await displayResults(ctx, quizUserId); // Await the result display
+        await displayResults(ctx, quizUserId);
         delete activeQuizzes[quizUserId];
         delete completedQuizzes[quizUserId];
       }
@@ -128,7 +126,7 @@ bot.on("poll_answer", async (ctx) => {
 });
 
 async function displayResults(ctx, quizOwnerId) {
-  const quizData = activeQuizzes[quizOwnerId]; // Get active quiz data for the user
+  const quizData = activeQuizzes[quizOwnerId];
   if (!quizData) {
     return ctx.reply("No quiz data found.");
   }
@@ -155,6 +153,8 @@ async function displayResults(ctx, quizOwnerId) {
     await ctx.replyWithHTML(resultsMessage);
   }
 }
+
+
 
 
 
