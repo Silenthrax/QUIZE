@@ -84,12 +84,16 @@ async function pollUploader(ctx, user_id, quizName) {
     console.error("Error uploading polls:", error);
     ctx.reply("An error occurred while uploading the quiz.");
   }
-}
+}}
+
+
 
 bot.on("poll_answer", (ctx) => {
   const { user, poll_id, option_ids } = ctx.pollAnswer;
   const userId = user.id;
   const userName = user.first_name;
+
+  console.log(`Poll answer received from ${userName} (ID: ${userId}):`, option_ids);
 
   for (const [quizUserId, quizData] of Object.entries(activeQuizzes)) {
     const activeQuiz = quizData.questions.find((quiz) => quiz.poll_id === poll_id);
@@ -102,13 +106,15 @@ bot.on("poll_answer", (ctx) => {
 
       if (userAnswer === correctOption) {
         quizData.participants[userId].correct += 1;
+        ctx.reply(`${userName}, your answer is correct! 🎉`);
       } else {
         quizData.participants[userId].wrong += 1;
+        ctx.reply(`${userName}, your answer is incorrect. 😔`);
       }
 
       completedQuizzes[quizUserId] -= 1;
       if (completedQuizzes[quizUserId] === 0) {
-        await displayResults(ctx, quizUserId);
+        displayResults(ctx, quizUserId);
         delete activeQuizzes[quizUserId];
         delete completedQuizzes[quizUserId];
       }
@@ -116,6 +122,7 @@ bot.on("poll_answer", (ctx) => {
     }
   }
 });
+
 
 async function displayResults(ctx, quizOwnerId) {
   const quizData = activeQuizzes[quizOwnerId];
