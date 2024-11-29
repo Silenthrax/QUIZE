@@ -70,6 +70,8 @@ Forward Message Summary:
   `;
 }
 
+
+
 bot.command("broadcast", async (ctx) => {
   try {
     if (!OWNER_ID.includes(ctx.message.from.id)) {
@@ -86,6 +88,9 @@ bot.command("broadcast", async (ctx) => {
     const message = replyMessage ? (replyMessage.text || replyMessage.caption) : args;
     const sanitizedMessage = message.slice(0, 64);
 
+    // Debug log
+    console.log("Message to broadcast:", sanitizedMessage);
+
     const buttons = Markup.inlineKeyboard([
       [Markup.button.callback("📢 Broadcast", `action_broadcast:${sanitizedMessage}`)],
       [Markup.button.callback("🔄 Forward", `action_forward:${replyMessage ? replyMessage.message_id : ''}`)],
@@ -101,6 +106,8 @@ bot.command("broadcast", async (ctx) => {
     return ctx.reply("An error occurred while processing the broadcast. Please try again later.");
   }
 });
+
+
 
 bot.action(/action_broadcast:(.+)/, async (ctx) => {
   try {
