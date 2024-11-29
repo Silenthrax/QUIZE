@@ -49,7 +49,6 @@ bot.action('remove_all_quizzes', async (ctx) => {
 
 // ------------- Poll Uploader ---------------- //
 
-/*
 let activeQuizzes = {};
 
 async function pollUploader(ctx, user_id, quizName) {
@@ -145,95 +144,9 @@ async function showResults(ctx, quizOwnerId) {
   delete activeQuizzes[quizOwnerId];
 }
 
-*/
-
-const pollUploader = 5 ;
-
-const quizQuestions = [
-  {
-    question: "What is the capital of France?",
-    options: ["Berlin", "Madrid", "Paris", "Rome"],
-    correctAnswerIndex: 2,
-  },
-  {
-    question: "Which planet is known as the Red Planet?",
-    options: ["Earth", "Mars", "Jupiter", "Venus"],
-    correctAnswerIndex: 1,
-  },
-  {
-    question: "Who wrote 'Romeo and Juliet'?",
-    options: ["Shakespeare", "Dickens", "Austen", "Hemingway"],
-    correctAnswerIndex: 0,
-  },
-  {
-    question: "What is the largest ocean on Earth?",
-    options: ["Atlantic", "Indian", "Arctic", "Pacific"],
-    correctAnswerIndex: 3,
-  },
-  {
-    question: "Which animal is the largest mammal?",
-    options: ["Elephant", "Whale", "Giraffe", "Shark"],
-    correctAnswerIndex: 1,
-  },
-];
-
-let userAnswers = {};
-let answeredUsers = new Set();
-
-bot.command('startquiz', async (ctx) => {
-  let questionIndex = 0;
-  while (questionIndex < quizQuestions.length) {
-    const { question, options } = quizQuestions[questionIndex];
-    await ctx.replyWithPoll(question, options, { is_anonymous: false });
-    questionIndex++;
-  }
-  await ctx.reply('Please answer all questions to see the results!');
-});
-
-bot.on('poll_answer', async (ctx) => {
-  const userId = ctx.poll_answer.user.id;
-  const pollId = ctx.poll_answer.poll_id;
-  const selectedOptionIndex = ctx.poll_answer.option_ids[0];
-
-  if (!userAnswers[userId]) {
-    userAnswers[userId] = { correct: 0, wrong: 0 };
-  }
-
-  const correctAnswerIndex = quizQuestions[pollId].correctAnswerIndex;
-
-  if (selectedOptionIndex === correctAnswerIndex) {
-    userAnswers[userId].correct++;
-  } else {
-    userAnswers[userId].wrong++;
-  }
-
-  answeredUsers.add(userId);
-
-  if (answeredUsers.size === Object.keys(userAnswers).length) {
-    const sortedResults = Object.entries(userAnswers)
-      .map(([userId, scores]) => ({
-        userId,
-        ...scores,
-      }))
-      .sort((a, b) => b.correct - a.correct);
-
-    let resultMessage = 'Leaderboard:\n\n';
-    sortedResults.forEach((result, index) => {
-      const user = ctx.telegram.getChat(result.userId);
-      resultMessage += `${index + 1}. ${user.first_name}: Correct: ${result.correct}, Wrong: ${result.wrong}\n`;
-    });
-
-    ctx.reply(resultMessage);
-  }
-});
-
-
 
 
 
 
 
 module.exports = { pollUploader };
-
-
-
