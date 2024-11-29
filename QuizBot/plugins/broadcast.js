@@ -4,7 +4,6 @@ const { get_total_users } = require("../core/mongo/usersdb");
 const { get_total_chats } = require("../core/mongo/chatsdb");
 const { Markup } = require("telegraf");
 
-
 // --------------- Functions ----------------- //
 async function broadcast(ctx, msg, all_users, all_chats) {
   let done_users = 0, done_chats = 0, failed_users = 0, failed_chats = 0;
@@ -68,14 +67,13 @@ Forward Message Summary:
 `;
 }
 
-
 // ---------------- Broadcast ------------------ //
 bot.command("broadcast", async (ctx) => {
   try {
     if (OWNER_ID.includes(ctx.message.from.id)) {
       const reply = ctx.message.reply_to_message;
       const args = ctx.message.text.split(" ").slice(1).join(" ");
-      
+
       if (!reply && !args) {
         return ctx.reply(
           "Please reply to a message or provide a message to broadcast.\nUsage: /broadcast <message>",
@@ -85,7 +83,9 @@ bot.command("broadcast", async (ctx) => {
 
       const message = reply ? (reply.text || reply.caption) : args;
 
-      const sanitizedMessage = encodeURIComponent(message.slice(0, 64)); // Ensure the message doesn't exceed Telegram's limit
+      console.log("Broadcast message:", message);  // Debug log
+
+      const sanitizedMessage = encodeURIComponent(message.slice(0, 64)); // Optional sanitization
 
       const buttons = Markup.inlineKeyboard([
         [Markup.button.callback("📢 Broadcast", `action_broadcast:${sanitizedMessage}`)],
@@ -110,11 +110,12 @@ bot.command("broadcast", async (ctx) => {
   }
 });
 
-
 // --------------- Actions ----------------- //
 bot.action(/action_broadcast:(.+)/, async (ctx) => {
   try {
     const message = ctx.match[1];
+    console.log("Broadcast action triggered for message:", message);  // Debug log
+
     const users = await get_total_users();
     const chats = await get_total_chats();
 
@@ -134,6 +135,8 @@ bot.action(/action_forward:(.*)/, async (ctx) => {
       return ctx.answerCbQuery("Please reply to a message to forward.");
     }
 
+    console.log("Forward action triggered for message ID:", message_id);  // Debug log
+
     const users = await get_total_users();
     const chats = await get_total_chats();
     const summary = await forwardMessage(ctx, message_id, users, chats);
@@ -145,8 +148,6 @@ bot.action(/action_forward:(.*)/, async (ctx) => {
     await ctx.answerCbQuery("Failed to execute forward.");
   }
 });
-
-
 
 
 
