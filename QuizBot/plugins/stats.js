@@ -16,7 +16,7 @@ bot.command("stats", async (ctx) => {
             const botName = botInfo.first_name;
 
             await ctx.replyWithPhoto(
-                "https://graph.org//file/1e2e321668b57ba61d954.jpg",
+                "https://envs.sh/YIk.jpg",
                 {
                     caption: `<b>${botName} System Stats</b>\n\n` +
                         `Total Users: <code>${users.length}</code>\n` +
