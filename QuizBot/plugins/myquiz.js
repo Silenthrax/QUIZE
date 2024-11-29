@@ -147,7 +147,7 @@ async function showResults(ctx, quizOwnerId) {
 
 */
 
-
+const pollUploader = 5 ;
 
 const quizQuestions = [
   {
