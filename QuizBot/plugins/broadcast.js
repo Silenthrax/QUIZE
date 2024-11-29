@@ -85,8 +85,10 @@ bot.command("broadcast", async (ctx) => {
 
       const message = reply ? (reply.text || reply.caption) : args;
 
+      const sanitizedMessage = encodeURIComponent(message.slice(0, 64)); // Ensure the message doesn't exceed Telegram's limit
+
       const buttons = Markup.inlineKeyboard([
-        [Markup.button.callback("📢 Broadcast", `action_broadcast:${message}`)],
+        [Markup.button.callback("📢 Broadcast", `action_broadcast:${sanitizedMessage}`)],
         [Markup.button.callback("🔄 Forward", `action_forward:${reply ? reply.message_id : ''}`)],
       ]);
 
@@ -94,7 +96,7 @@ bot.command("broadcast", async (ctx) => {
         "Choose an action for the message:",
         {
           reply_to_message_id: ctx.message.message_id,
-          ...buttons,
+          reply_markup: buttons,
         }
       );
     } else {
