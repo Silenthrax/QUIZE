@@ -1,125 +1,114 @@
+const { Markup } = require("telegraf");
 const bot = require("../index");
 const { OWNER_ID } = require("../../config");
 const { get_total_users } = require("../core/mongo/usersdb");
 const { get_total_chats } = require("../core/mongo/chatsdb");
-const { Markup } = require("telegraf");
 
-// --------------- Functions ----------------- //
-async function broadcast(ctx, msg, all_users, all_chats) {
-  let done_users = 0, done_chats = 0, failed_users = 0, failed_chats = 0;
+async function sendBroadcastMessage(ctx, message, users, chats) {
+  let doneUsers = 0, failedUsers = 0, doneChats = 0, failedChats = 0;
 
-  for (const user of all_users) {
+  for (const user of users) {
     try {
-      await ctx.telegram.sendMessage(user, msg);
-      done_users++;
-    } catch {
-      failed_users++;
+      await ctx.telegram.sendMessage(user, message);
+      doneUsers++;
+    } catch (error) {
+      failedUsers++;
+      console.error(`Failed to send message to user ${user}:`, error);
     }
   }
 
-  for (const chat of all_chats) {
+  for (const chat of chats) {
     try {
-      await ctx.telegram.sendMessage(chat, msg);
-      done_chats++;
-    } catch {
-      failed_chats++;
+      await ctx.telegram.sendMessage(chat, message);
+      doneChats++;
+    } catch (error) {
+      failedChats++;
+      console.error(`Failed to send message to chat ${chat}:`, error);
     }
   }
 
   return `
 Broadcast Summary:
 -------------------
-✅ Done Users: ${done_users}
-❌ Failed Users: ${failed_users}
-✅ Done Chats: ${done_chats}
-❌ Failed Chats: ${failed_chats}
-`;
+✅ Done Users: ${doneUsers}
+❌ Failed Users: ${failedUsers}
+✅ Done Chats: ${doneChats}
+❌ Failed Chats: ${failedChats}
+  `;
 }
 
-async function forwardMessage(ctx, message_id, all_users, all_chats) {
-  let done_users = 0, done_chats = 0, failed_users = 0, failed_chats = 0;
+async function forwardMessage(ctx, messageId, users, chats) {
+  let doneUsers = 0, failedUsers = 0, doneChats = 0, failedChats = 0;
 
-  for (const user of all_users) {
+  for (const user of users) {
     try {
-      await ctx.telegram.forwardMessage(user, ctx.chat.id, message_id);
-      done_users++;
-    } catch {
-      failed_users++;
+      await ctx.telegram.forwardMessage(user, ctx.chat.id, messageId);
+      doneUsers++;
+    } catch (error) {
+      failedUsers++;
+      console.error(`Failed to forward message to user ${user}:`, error);
     }
   }
 
-  for (const chat of all_chats) {
+  for (const chat of chats) {
     try {
-      await ctx.telegram.forwardMessage(chat, ctx.chat.id, message_id);
-      done_chats++;
-    } catch {
-      failed_chats++;
+      await ctx.telegram.forwardMessage(chat, ctx.chat.id, messageId);
+      doneChats++;
+    } catch (error) {
+      failedChats++;
+      console.error(`Failed to forward message to chat ${chat}:`, error);
     }
   }
 
   return `
 Forward Message Summary:
 -------------------------
-✅ Done Users: ${done_users}
-❌ Failed Users: ${failed_users}
-✅ Done Chats: ${done_chats}
-❌ Failed Chats: ${failed_chats}
-`;
+✅ Done Users: ${doneUsers}
+❌ Failed Users: ${failedUsers}
+✅ Done Chats: ${doneChats}
+❌ Failed Chats: ${failedChats}
+  `;
 }
 
-// ---------------- Broadcast ------------------ //
 bot.command("broadcast", async (ctx) => {
   try {
-    if (OWNER_ID.includes(ctx.message.from.id)) {
-      const reply = ctx.message.reply_to_message;
-      const args = ctx.message.text.split(" ").slice(1).join(" ");
-
-      if (!reply && !args) {
-        return ctx.reply(
-          "Please reply to a message or provide a message to broadcast.\nUsage: /broadcast <message>",
-          { reply_to_message_id: ctx.message.message_id }
-        );
-      }
-
-      const message = reply ? (reply.text || reply.caption) : args;
-
-      console.log("Broadcast message:", message);  // Debug log
-
-      const sanitizedMessage = encodeURIComponent(message.slice(0, 64)); // Optional sanitization
-
-      const buttons = Markup.inlineKeyboard([
-        [Markup.button.callback("📢 Broadcast", `action_broadcast:${sanitizedMessage}`)],
-        [Markup.button.callback("🔄 Forward", `action_forward:${reply ? reply.message_id : ''}`)],
-      ]);
-
-      return ctx.reply(
-        "Choose an action for the message:",
-        {
-          reply_to_message_id: ctx.message.message_id,
-          reply_markup: buttons,
-        }
-      );
-    } else {
-      await ctx.reply("This is an owner-only command.");
+    if (!OWNER_ID.includes(ctx.message.from.id)) {
+      return ctx.reply("This is an owner-only command.");
     }
+
+    const replyMessage = ctx.message.reply_to_message;
+    const args = ctx.message.text.split(" ").slice(1).join(" ");
+
+    if (!replyMessage && !args) {
+      return ctx.reply("Please reply to a message or provide a message to broadcast.\nUsage: /broadcast <message>");
+    }
+
+    const message = replyMessage ? (replyMessage.text || replyMessage.caption) : args;
+    const sanitizedMessage = message.slice(0, 64);
+
+    const buttons = Markup.inlineKeyboard([
+      [Markup.button.callback("📢 Broadcast", `action_broadcast:${sanitizedMessage}`)],
+      [Markup.button.callback("🔄 Forward", `action_forward:${replyMessage ? replyMessage.message_id : ''}`)],
+    ]);
+
+    return ctx.reply("Choose an action for the message:", {
+      reply_to_message_id: ctx.message.message_id,
+      reply_markup: buttons,
+    });
+
   } catch (error) {
     console.error("Error in /broadcast command:", error);
-    await ctx.reply(
-      "An error occurred while processing the broadcast. Please try again later."
-    );
+    return ctx.reply("An error occurred while processing the broadcast. Please try again later.");
   }
 });
 
-// --------------- Actions ----------------- //
 bot.action(/action_broadcast:(.+)/, async (ctx) => {
   try {
     const message = ctx.match[1];
-    console.log("Broadcast action triggered for message:", message);  // Debug log
-
     const users = await get_total_users();
     const chats = await get_total_chats();
 
-    const summary = await broadcast(ctx, message, users, chats);
+    const summary = await sendBroadcastMessage(ctx, message, users, chats);
     await ctx.reply(summary);
     await ctx.answerCbQuery("Broadcast executed successfully!");
   } catch (error) {
@@ -130,17 +119,15 @@ bot.action(/action_broadcast:(.+)/, async (ctx) => {
 
 bot.action(/action_forward:(.*)/, async (ctx) => {
   try {
-    const message_id = ctx.match[1];
-    if (!message_id) {
+    const messageId = ctx.match[1];
+    if (!messageId) {
       return ctx.answerCbQuery("Please reply to a message to forward.");
     }
 
-    console.log("Forward action triggered for message ID:", message_id);  // Debug log
-
     const users = await get_total_users();
     const chats = await get_total_chats();
-    const summary = await forwardMessage(ctx, message_id, users, chats);
 
+    const summary = await forwardMessage(ctx, messageId, users, chats);
     await ctx.reply(summary);
     await ctx.answerCbQuery("Forward executed successfully!");
   } catch (error) {
@@ -148,7 +135,6 @@ bot.action(/action_forward:(.*)/, async (ctx) => {
     await ctx.answerCbQuery("Failed to execute forward.");
   }
 });
-
 
 
 
