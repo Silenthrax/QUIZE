@@ -1,0 +1,33 @@
+{
+  "name": "QuizBot",
+  "description": "I am Telegram QuizBot made with JavaScript",
+  "repository": "https://github.com/Sumit0045/QuizBot",
+  "keywords": ["telegram", "quiz", "bot", "javascript"],
+  "env": {
+    "BOT_TOKEN": {
+      "description": "Your Telegram bot token",
+      "required": true
+    },
+    "MONGO_DB": {
+      "description": "MongoDB connection URI for storing data",
+      "required": true
+    },
+    "OWNER_ID": {
+      "description": "List of authorized owner IDs Ex- 1343483838,82837373",
+      "required": true
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "free"
+    }
+  }
+}
+
+
